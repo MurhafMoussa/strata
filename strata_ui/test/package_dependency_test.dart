@@ -10,7 +10,7 @@ void main() {
       final content = pubspecFile.readAsStringSync();
       final lines = content.split('\n');
 
-      final prohibitedPackages = ['flutter_bloc', 'go_router', 'dio', 'hive', 'isotope'];
+      final prohibitedPackages = ['flutter_bloc', 'go_router', 'dio', 'hive', 'isotope', 'easy_refresh'];
 
       for (final package in prohibitedPackages) {
         final hasProhibited = lines.any((line) {
@@ -46,6 +46,11 @@ void main() {
           content.contains("import 'package:go_router/"),
           isFalse,
           reason: '${file.path} imports go_router',
+        );
+        expect(
+          content.contains("import 'package:easy_refresh/"),
+          isFalse,
+          reason: '${file.path} imports easy_refresh',
         );
       }
     });

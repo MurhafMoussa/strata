@@ -201,16 +201,16 @@ StrataPaginationWidget<ProductItem, PaginationMetaModel>(
 ```
 
 ## Acceptance criteria
-- [ ] `easy_refresh` package is completely removed from `strata_ui/pubspec.yaml` and code.
-- [ ] Internal state fetching (`onFetchPage`) is deprecated/removed in favor of `StrataPaginationState` / BLoC driven UI.
-- [ ] Native pull-to-refresh (`RefreshIndicator.adaptive`) and `NotificationListener<ScrollNotification>` infinite scroll threshold logic are implemented.
-- [ ] Exactly one of `scrollableBuilder`, `sliversBuilder`, or `customBuilder` is enforced via constructor assertions.
-- [ ] Full-screen `Skeletonizer` renders on initial load, and a bottom tile/spinner renders during load-more.
-- [ ] Inline bottom retry bar renders on page-N fetch failure (`PaginationPageFetchFailure`) without resetting scroll offset.
-- [ ] Desktop/web features (`Ctrl+R` / `Cmd+R` refresh shortcut, `Scrollbar`, resize state retention) are implemented.
-- [ ] Offline/cached data banner/badge renders when `isFromCache` or `isOffline` is true.
-- [ ] 100% executable DartDoc with `@example` snippets is provided for all public UI pagination classes.
-- [ ] Native Flutter `testWidgets` tests in `strata_ui/test/` verify pull-to-refresh, infinite scroll, page-N retry, and key accessibility.
+- [x] `easy_refresh` package is completely removed from `strata_ui/pubspec.yaml` and code.
+- [x] Internal state fetching (`onFetchPage`) is deprecated/removed in favor of `StrataPaginationState` / BLoC driven UI.
+- [x] Native pull-to-refresh (`RefreshIndicator.adaptive`) and `NotificationListener<ScrollNotification>` infinite scroll threshold logic are implemented.
+- [x] Exactly one of `scrollableBuilder`, `sliversBuilder`, or `customBuilder` is enforced via constructor assertions.
+- [x] Full-screen `Skeletonizer` renders on initial load, and a bottom tile/spinner renders during load-more.
+- [x] Inline bottom retry bar renders on page-N fetch failure (`PaginationPageFetchFailure`) without resetting scroll offset.
+- [x] Desktop/web features (`Ctrl+R` / `Cmd+R` refresh shortcut, `Scrollbar`, resize state retention) are implemented.
+- [x] Offline/cached data banner/badge renders when `isFromCache` or `isOffline` is true.
+- [x] 100% executable DartDoc with `@example` snippets is provided for all public UI pagination classes.
+- [x] Native Flutter `testWidgets` tests in `strata_ui/test/` verify pull-to-refresh, infinite scroll, page-N retry, and key accessibility.
 
 ## Covers
 - User Stories: 2, 3, 4, 5

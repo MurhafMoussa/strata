@@ -8,31 +8,31 @@ Reusable UI components, custom form fields, and layout theme abstractions for th
 
 ## Architectural Rules & Boundaries
 
-- **Decoupled Components**: Depends ONLY on `strata_core`, `flutter`, `easy_refresh`, `skeletonizer`, `pinput`, `readmore`, `shimmer`, `cached_network_image`, `carousel_slider`, `gap`, and `typed_form_fields`.
+- **Decoupled Components**: Depends ONLY on `strata_core`, `strata_state`, `flutter`, `skeletonizer`, `pinput`, `readmore`, `shimmer`, `cached_network_image`, `carousel_slider`, `gap`, and `typed_form_fields`.
 - **Zero Framework Binding**: MUST NOT depend on `flutter_bloc` or `go_router`.
 - **Callback Pattern**: Actions and events are passed as callbacks (`onRefresh`, `onLoadMore`, `onChanged`, `onTap`).
 - **Strict Boundary Enforcement**: Enforced via package dependency audit tests.
 
 ## Key Components
 
-### 1. `CorePaginationWidget`
-Infinite scrolling / pull-to-refresh list and grid widget wrapping `EasyRefresh` and `Skeletonizer` without requiring BLoC binding.
+### 1. `StrataPaginationWidget`
+Decoupled, platform-adaptive pagination widget utilizing native Flutter `RefreshIndicator.adaptive`, `NotificationListener<ScrollNotification>`, mutually exclusive layout builders (`scrollableBuilder`, `sliversBuilder`, `customBuilder`), full-screen and incremental `Skeletonizer` loading states, inline page-N retry bar, desktop/web scrollbar and shortcuts (`Ctrl+R` / `Cmd+R`), and offline cache badges.
 
 ```dart
 import 'package:strata_ui/strata_ui.dart';
 
-CorePaginationWidget<UserItem, NoMetaModel>(
-  items: userPaginatedModel,
-  isLoading: isUserLoading,
-  hasReachedMax: hasReachedMax,
-  onRefresh: () async => fetchUsers(),
-  onLoadMore: () async => fetchMoreUsers(),
-  emptyEntity: UserItem.empty,
-  scrollableBuilder: (context, items, controller) {
-    return ListView.builder(
+StrataPaginationWidget<ProductItem, PaginationMetaModel>(
+  state: paginationState,
+  onRefresh: () async => fetchProducts(),
+  onLoadMore: () async => fetchMoreProducts(),
+  emptyEntity: ProductItem.empty,
+  scrollableBuilder: (context, controller, items) {
+    return ListView.separated(
+      key: const Key('strata_pagination_list'),
       controller: controller,
-      itemCount: items.data.length,
-      itemBuilder: (context, index) => UserTile(user: items.data[index]),
+      itemCount: items.length,
+      separatorBuilder: (_, __) => const Divider(),
+      itemBuilder: (context, index) => ListTile(title: Text(items[index].name)),
     );
   },
 );

@@ -41,13 +41,13 @@ void main() {
         refreshTokenKey: 'refresh_token',
       );
 
-      final config = StrataConfigEntity(
+      const config = StrataConfigEntity(
         networkConfig: networkConfig,
-        themeConfig: const ThemeConfigEntity(
+        themeConfig: ThemeConfigEntity(
           themeMode: ThemeMode.system,
           enableAutoSwitch: false,
         ),
-        localizationConfig: const LocalizationConfigEntity(
+        localizationConfig: LocalizationConfigEntity(
           defaultLocale: Locale('en'),
           supportedLocales: [Locale('en')],
           localizationsDelegates: [],
@@ -73,19 +73,19 @@ void main() {
     });
 
     test('reset cleans up GetIt registrations between runs', () async {
-      final config = StrataConfigEntity(
-        networkConfig: const NetworkConfigEntity(
+      const config = StrataConfigEntity(
+        networkConfig: NetworkConfigEntity(
           baseUrl: 'https://api.example.com',
           excludedPaths: [],
           refreshTokenApiEndpoint: '/refresh',
           accessTokenKey: 'access_token',
           refreshTokenKey: 'refresh_token',
         ),
-        themeConfig: const ThemeConfigEntity(
+        themeConfig: ThemeConfigEntity(
           themeMode: ThemeMode.system,
           enableAutoSwitch: false,
         ),
-        localizationConfig: const LocalizationConfigEntity(
+        localizationConfig: LocalizationConfigEntity(
           defaultLocale: Locale('en'),
           supportedLocales: [Locale('en')],
           localizationsDelegates: [],
@@ -101,38 +101,38 @@ void main() {
     });
 
     test('StrataConfigEntity supports equality comparison', () {
-      final config1 = StrataConfigEntity(
-        networkConfig: const NetworkConfigEntity(
+      const config1 = StrataConfigEntity(
+        networkConfig: NetworkConfigEntity(
           baseUrl: 'https://api.example.com',
           excludedPaths: [],
           refreshTokenApiEndpoint: '/refresh',
           accessTokenKey: 'access_token',
           refreshTokenKey: 'refresh_token',
         ),
-        themeConfig: const ThemeConfigEntity(
+        themeConfig: ThemeConfigEntity(
           themeMode: ThemeMode.system,
           enableAutoSwitch: false,
         ),
-        localizationConfig: const LocalizationConfigEntity(
+        localizationConfig: LocalizationConfigEntity(
           defaultLocale: Locale('en'),
           supportedLocales: [Locale('en')],
           localizationsDelegates: [],
         ),
         errorParser: _testErrorParser,
       );
-      final config2 = StrataConfigEntity(
-        networkConfig: const NetworkConfigEntity(
+      const config2 = StrataConfigEntity(
+        networkConfig: NetworkConfigEntity(
           baseUrl: 'https://api.example.com',
           excludedPaths: [],
           refreshTokenApiEndpoint: '/refresh',
           accessTokenKey: 'access_token',
           refreshTokenKey: 'refresh_token',
         ),
-        themeConfig: const ThemeConfigEntity(
+        themeConfig: ThemeConfigEntity(
           themeMode: ThemeMode.system,
           enableAutoSwitch: false,
         ),
-        localizationConfig: const LocalizationConfigEntity(
+        localizationConfig: LocalizationConfigEntity(
           defaultLocale: Locale('en'),
           supportedLocales: [Locale('en')],
           localizationsDelegates: [],
