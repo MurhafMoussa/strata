@@ -1,69 +1,73 @@
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:strata_core/strata_core.dart';
 
-/// Hydrated Cubit for managing persistent platform and device information state.
-class PlatformCubit({
-  required this.service,
-}) extends HydratedCubit<DeviceInfoEntity> {
-  this : super(_initialState) {
-    _initialize();
+/// Cubit for managing device and platform information state.
+class PlatformCubit extends Cubit<DeviceInfoEntity> {
+  PlatformCubit({
+    required this.service,
+    DeviceInfoEntity? initialInfo,
+  }) : super(initialInfo ?? DeviceInfoEntity.unknown) {
+    if (initialInfo == null) {
+      _initialize();
+    }
   }
 
   final PlatformServiceInterface service;
 
-  static const DeviceInfoEntity _initialState = DeviceInfoEntity(
-    deviceId: 'Unknown',
-    buildNumber: 'Unknown',
-    versionNumber: 'Unknown',
-    platform: PlatformType.unknown,
-  );
-
   Future<void> _initialize() async {
-    await _fetchDeviceInfo();
+    await fetchDeviceInfo();
   }
 
-  Future<void> _fetchDeviceInfo() async {
+  /// Fetches latest device information from the underlying platform service.
+  Future<void> fetchDeviceInfo() async {
     try {
-      final deviceInfo = service.getDeviceInfo();
+      final deviceInfo = await service.getDeviceInfo();
       emit(deviceInfo);
     } catch (_) {
-      if (state == _initialState) {
-        emit(_initialState);
+      if (state == DeviceInfoEntity.unknown) {
+        emit(DeviceInfoEntity.unknown);
       }
     }
   }
 
+  /// Refreshes device information asynchronously.
   Future<void> refreshDeviceInfo() async {
-    await _fetchDeviceInfo();
+    await fetchDeviceInfo();
   }
 
+  /// Convenient accessor for the device info entity.
+  DeviceInfoEntity get deviceInfo => state;
+
+  /// Current platform type.
   PlatformType get currentPlatform => state.platform;
+
+  /// Device hardware ID or vendor ID.
   String get deviceId => state.deviceId;
+
+  /// Hardware model name.
+  String get model => state.model;
+
+  /// Hardware manufacturer.
+  String get manufacturer => state.manufacturer;
+
+  /// Operating system release or kernel version.
+  String get osVersion => state.osVersion;
+
+  /// Whether running on a physical device.
+  bool get isPhysicalDevice => state.isPhysicalDevice;
+
+  /// Application version name/number.
   String get appVersion => state.versionNumber;
+
+  /// Application package build number.
   String get buildNumber => state.buildNumber;
 
-  bool get isMobile =>
-      state.platform == PlatformType.android ||
-      state.platform == PlatformType.ios;
+  /// Whether current platform is Android or iOS.
+  bool get isMobile => state.platform.isMobile;
 
-  bool get isDesktop =>
-      state.platform == PlatformType.windows ||
-      state.platform == PlatformType.macos ||
-      state.platform == PlatformType.linux;
+  /// Whether current platform is Windows, macOS, or Linux.
+  bool get isDesktop => state.platform.isDesktop;
 
-  bool get isWeb => state.platform == PlatformType.web;
-
-  @override
-  DeviceInfoEntity? fromJson(Map<String, dynamic> json) {
-    try {
-      return DeviceInfoEntity.fromJson(json);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(DeviceInfoEntity state) {
-    return state.toJson();
-  }
+  /// Whether running in a web browser.
+  bool get isWeb => state.platform.isWeb;
 }

@@ -284,8 +284,10 @@ context.read<ThemeCubit>().setThemeMode(ThemeMode.dark);
 context.read<LocalizationCubit>().changeLanguage(const Locale('ar'));
 
 // Access Platform & Device Information
-final deviceInfo = context.read<PlatformCubit>().state.deviceInfo;
-print('Device Model: ${deviceInfo?.model}, OS: ${deviceInfo?.osVersion}');
+final platformCubit = context.read<PlatformCubit>();
+final deviceInfo = platformCubit.deviceInfo;
+print('Device: ${deviceInfo.model} (${deviceInfo.manufacturer}), OS: ${deviceInfo.osVersion}');
+print('Platform: ${platformCubit.currentPlatform.name}, Is Mobile: ${platformCubit.isMobile}');
 ```
 
 ---
