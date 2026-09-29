@@ -15,7 +15,7 @@
 | **`strata_core`** | Domain entities, failures, logger contracts (`StrataLoggerInterface`), `SensitiveStorageInterface`, `AsyncState<T>`, and `UseCase` contracts. | Pure Dart (`equatable`, `fpdart`, `get_it`) |
 | **`strata_network`** | Dio HTTP client wrapper (`ApiHandlerInterface`), token lifecycle management (`TokenManagerInterface`), and request cancellation (`CancelRequestManagerInterface`). | `strata_core`, `dio`, `mutex`, `internet_connection_checker_plus` |
 | **`strata_storage`** | Secure persistence adapters (`FlutterSecureSensitiveStorage`), encryption key rotation, and storage directory helpers. | `strata_core`, `flutter_secure_storage`, `path_provider` |
-| **`strata_state`** | BLoC & state management, `AsyncHostMixin`, `AsyncHandler`, `AsyncBuilder`, persistent Cubits (`ThemeCubit`, `LocalizationCubit`, `PlatformCubit`), and Value Selectors. | `strata_core`, `flutter_bloc`, `hydrated_bloc` |
+| **`strata_state`** | BLoC & state management, `AsyncHostMixin`, `AsyncHandler`, `AsyncBuilder`, persistent Cubits (`ThemeCubit`, `LocalizationCubit`), `PlatformCubit`, and Value Selectors. | `strata_core`, `flutter_bloc`, `hydrated_bloc` |
 | **`strata_ui`** | Decoupled UI components (`StrataPaginationWidget`, form fields, `CoreImage`, `CoreCarousel`), theme/spacing constants, and reactive wrappers. | `strata_core`, `flutter`, `skeletonizer` |
 | **`strata`** | Meta-package orchestrating `StrataInitializer` and exporting all sub-packages for single-line app setup. | All Strata sub-packages |
 
@@ -272,9 +272,9 @@ AsyncBuilder<UserState, List<User>>(
 )
 ```
 
-#### Hydrated Cubits (`ThemeCubit`, `LocalizationCubit`, `PlatformCubit`)
+#### Hydrated Cubits (`ThemeCubit`, `LocalizationCubit`)
 
-Strata includes pre-built persisted Cubits using `HydratedBloc`:
+Strata includes pre-built persisted Cubits using `HydratedBloc` for user preferences:
 
 ```dart
 // Theme Management
@@ -282,12 +282,42 @@ context.read<ThemeCubit>().setThemeMode(ThemeMode.dark);
 
 // Locale / Language Management
 context.read<LocalizationCubit>().changeLanguage(const Locale('ar'));
+```
 
-// Access Platform & Device Information
+#### Platform & Device Information (`PlatformCubit`)
+
+`PlatformCubit` provides comprehensive device, OS, and app metadata. Unlike `ThemeCubit` and `LocalizationCubit`, it is a standard `Cubit` (not hydrated) to prevent stale device identity or app version after OS updates or device backups.
+
+**Standard Usage (async fetch on construction):**
+```dart
 final platformCubit = context.read<PlatformCubit>();
 final deviceInfo = platformCubit.deviceInfo;
-print('Device: ${deviceInfo.model} (${deviceInfo.manufacturer}), OS: ${deviceInfo.osVersion}');
-print('Platform: ${platformCubit.currentPlatform.name}, Is Mobile: ${platformCubit.isMobile}');
+print('Device: ${deviceInfo.model} (${deviceInfo.manufacturer})');
+print('OS: ${deviceInfo.osVersion}');
+print('App Version: ${platformCubit.appVersion} (${platformCubit.buildNumber})');
+print('Platform: ${platformCubit.currentPlatform.name}');
+print('Is Mobile: ${platformCubit.isMobile}, Is Desktop: ${platformCubit.isDesktop}, Is Web: ${platformCubit.isWeb}');
+```
+
+**Bootstrap Pattern (synchronous, recommended for `main()`):**
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final platformService = PlatformServiceImpl();
+  final deviceInfo = await platformService.getDeviceInfo();
+
+  getIt.registerLazySingleton<PlatformCubit>(
+    () => PlatformCubit(service: platformService, initialInfo: deviceInfo),
+  );
+
+  runApp(const MyApp());
+}
+```
+
+**Manual Refresh:**
+```dart
+await context.read<PlatformCubit>().refreshDeviceInfo();
 ```
 
 ---
