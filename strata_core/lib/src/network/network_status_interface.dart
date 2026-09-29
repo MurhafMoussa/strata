@@ -1,6 +1,6 @@
 import 'dart:async';
 
-enum ConnectionStatus { connected, disconnected }
+enum ConnectionStatus { connected, disconnected, unknown }
 
 abstract interface class NetworkStatusInterface {
   Future<bool> get isConnected;

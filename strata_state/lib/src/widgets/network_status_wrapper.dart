@@ -9,6 +9,9 @@ import '../network/network_status_cubit.dart';
 class const NetworkStatusWrapper({
   super.key,
   required final Widget child,
+  final Widget Function(BuildContext context, ConnectionStatus status, Widget child)?
+      builder,
+  final void Function(ConnectionStatus status)? onStatusChange,
   final VoidCallback? onConnect,
   final VoidCallback? onDisconnect,
   final NetworkStatusCubit? networkStatusCubit,
@@ -16,23 +19,29 @@ class const NetworkStatusWrapper({
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<NetworkStatusCubit>(
-      create: (_) => networkStatusCubit ?? GetIt.I<NetworkStatusCubit>(),
-      child: Builder(
-        builder: (context) {
-          return BlocListener<NetworkStatusCubit, ConnectionStatus>(
-            listener: (context, status) {
-              switch (status) {
-                case ConnectionStatus.connected:
-                  onConnect?.call();
-                  break;
-                case ConnectionStatus.disconnected:
-                  onDisconnect?.call();
-                  break;
-              }
-            },
-            child: child,
-          );
+    final cubit = networkStatusCubit ?? GetIt.I<NetworkStatusCubit>();
+    final customBuilder = builder;
+    return BlocProvider<NetworkStatusCubit>.value(
+      value: cubit,
+      child: BlocConsumer<NetworkStatusCubit, ConnectionStatus>(
+        listener: (context, status) {
+          onStatusChange?.call(status);
+          switch (status) {
+            case ConnectionStatus.connected:
+              onConnect?.call();
+              break;
+            case ConnectionStatus.disconnected:
+              onDisconnect?.call();
+              break;
+            case ConnectionStatus.unknown:
+              break;
+          }
+        },
+        builder: (context, status) {
+          if (customBuilder != null) {
+            return customBuilder(context, status, child);
+          }
+          return child;
         },
       ),
     );

@@ -2,6 +2,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get_it/get_it.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:strata_core/strata_core.dart';
 import 'package:talker/talker.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
@@ -18,6 +19,7 @@ import '../error_handling/network_exception_mapper_interface.dart';
 import '../interceptors/retry_interceptor.dart';
 import '../interceptors/token_injector_interceptor.dart';
 import '../interceptors/token_refresh_interceptor_interface.dart';
+import '../network_status/internet_connection_network_status.dart';
 
 /// Extension on [GetIt] to register `strata_network` dependencies.
 extension StrataNetworkDiExtension on GetIt {
@@ -39,6 +41,19 @@ extension StrataNetworkDiExtension on GetIt {
     if (!isRegistered<CancelRequestManagerInterface>()) {
       registerLazySingleton<CancelRequestManagerInterface>(
         () => DefaultCancelRequestManager(),
+      );
+    }
+
+    if (!isRegistered<NetworkStatusInterface>()) {
+      registerLazySingleton<NetworkStatusInterface>(
+        () => InternetConnectionNetworkStatus(
+          isRegistered<InternetConnection>()
+              ? get<InternetConnection>()
+              : InternetConnection(),
+          isRegistered<StrataLoggerInterface>()
+              ? get<StrataLoggerInterface>()
+              : const NoOpStrataLogger(),
+        ),
       );
     }
 

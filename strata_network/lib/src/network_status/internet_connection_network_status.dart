@@ -22,7 +22,9 @@ class InternetConnectionNetworkStatus(
   @override
   void dispose() {
     _subscription?.cancel();
-    _controller.close();
+    if (!_controller.isClosed) {
+      _controller.close();
+    }
   }
 
   @override
@@ -31,6 +33,7 @@ class InternetConnectionNetworkStatus(
   Future<void> _init() async {
     _subscription =
         _internetConnection.onStatusChange.listen((status) {
+          if (_controller.isClosed) return;
           switch (status) {
             case InternetStatus.connected:
               _controller.add(ConnectionStatus.connected);

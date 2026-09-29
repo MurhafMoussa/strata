@@ -16,17 +16,14 @@ class const ThemeWrapper({
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ThemeCubit>(
-      create: (_) => themeCubit ?? GetIt.I<ThemeCubit>(),
-      child: Builder(
-        builder: (context) {
-          return BlocBuilder<ThemeCubit, ThemeConfigEntity>(
-            buildWhen: (previous, current) =>
-                previous.themeMode != current.themeMode ||
-                previous.enableAutoSwitch != current.enableAutoSwitch,
-            builder: builder,
-          );
-        },
+    final cubit = themeCubit ?? GetIt.I<ThemeCubit>();
+    return BlocProvider<ThemeCubit>.value(
+      value: cubit,
+      child: BlocBuilder<ThemeCubit, ThemeConfigEntity>(
+        buildWhen: (previous, current) =>
+            previous.themeMode != current.themeMode ||
+            previous.enableAutoSwitch != current.enableAutoSwitch,
+        builder: builder,
       ),
     );
   }

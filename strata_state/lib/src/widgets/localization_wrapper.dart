@@ -15,15 +15,12 @@ class const LocalizationWrapper({
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LocalizationCubit>(
-      create: (_) => localizationCubit ?? GetIt.I<LocalizationCubit>(),
-      child: Builder(
-        builder: (context) {
-          return BlocConsumer<LocalizationCubit, Locale>(
-            builder: builder,
-            listener: listener ?? (context, state) {},
-          );
-        },
+    final cubit = localizationCubit ?? GetIt.I<LocalizationCubit>();
+    return BlocProvider<LocalizationCubit>.value(
+      value: cubit,
+      child: BlocConsumer<LocalizationCubit, Locale>(
+        builder: builder,
+        listener: listener ?? (context, state) {},
       ),
     );
   }
