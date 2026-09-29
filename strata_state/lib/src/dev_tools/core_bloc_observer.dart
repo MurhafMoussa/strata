@@ -2,13 +2,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:strata_core/strata_core.dart';
 
 /// A Bloc observer that logs events, state changes, transitions, errors,
-/// creation, and closure of blocs using an injected [CoreLoggerInterface] instance.
+/// creation, and closure of blocs using an injected [StrataLoggerInterface] instance.
 class CoreBlocObserver extends BlocObserver {
   /// Creates a new [CoreBlocObserver] with the given [logger].
   CoreBlocObserver(this.logger);
 
   /// The logger instance used for logging Bloc events and changes.
-  final CoreLoggerInterface logger;
+  final StrataLoggerInterface logger;
 
   @override
   void onEvent(Bloc<dynamic, dynamic> bloc, Object? event) {

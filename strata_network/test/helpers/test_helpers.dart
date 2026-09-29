@@ -7,15 +7,31 @@ import 'package:strata_network/strata_network.dart';
 
 // --- Common Mocks ---
 class MockDio extends Mock implements Dio {}
+
 class MockTokenManager extends Mock implements TokenManagerInterface {}
+
 class MockSensitiveStorage extends Mock implements SensitiveStorageInterface {}
+
 class MockCookieJar extends Mock implements CookieJar {}
-class MockCoreLogger extends Mock implements CoreLoggerInterface {}
-class MockErrorInterceptorHandler extends Mock implements ErrorInterceptorHandler {}
-class MockRequestInterceptorHandler extends Mock implements RequestInterceptorHandler {}
-class MockResponseInterceptorHandler extends Mock implements ResponseInterceptorHandler {}
-class MockCancelRequestManager extends Mock implements CancelRequestManagerInterface {}
-class MockNetworkExceptionMapper extends Mock implements NetworkExceptionMapperInterface {}
+
+class MockStrataLogger extends Mock implements StrataLoggerInterface {}
+typedef MockCoreLogger = MockStrataLogger;
+
+class MockErrorInterceptorHandler extends Mock
+    implements ErrorInterceptorHandler {}
+
+class MockRequestInterceptorHandler extends Mock
+    implements RequestInterceptorHandler {}
+
+class MockResponseInterceptorHandler extends Mock
+    implements ResponseInterceptorHandler {}
+
+class MockCancelRequestManager extends Mock
+    implements CancelRequestManagerInterface {}
+
+class MockNetworkExceptionMapper extends Mock
+    implements NetworkExceptionMapperInterface {}
+
 class MockInternetConnection extends Mock implements InternetConnection {}
 
 // --- Dummy Error Model for Testing ---
@@ -35,7 +51,9 @@ void registerTestFallbacks() {
   registerFallbackValue(CancelToken());
   registerFallbackValue(Options());
   registerFallbackValue(RequestOptions(path: ''));
-  registerFallbackValue(Response<dynamic>(requestOptions: RequestOptions(path: '')));
+  registerFallbackValue(
+    Response<dynamic>(requestOptions: RequestOptions(path: '')),
+  );
   registerFallbackValue(DioException(requestOptions: RequestOptions(path: '')));
 }
 

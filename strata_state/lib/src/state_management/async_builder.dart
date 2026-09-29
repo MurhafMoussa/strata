@@ -3,12 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:strata_core/strata_core.dart';
 
-/// A widget builder that reacts to a specific [ApiState] within a BLoC/Cubit composite state.
-class ApiStateBuilder<CompositeState, SuccessData> extends StatelessWidget {
-  const ApiStateBuilder({
+/// A widget builder that reacts to a specific [AsyncState] within a BLoC/Cubit composite state.
+class AsyncBuilder<CompositeState, SuccessData> extends StatelessWidget {
+  /// Creates a new [AsyncBuilder].
+  const AsyncBuilder({
     super.key,
     required this.bloc,
-    required this.getApiState,
+    required this.getAsyncState,
     required this.successBuilder,
     this.initialBuilder,
     this.loadingBuilder,
@@ -19,19 +20,19 @@ class ApiStateBuilder<CompositeState, SuccessData> extends StatelessWidget {
   /// The BLoC/Cubit to observe.
   final BlocBase<CompositeState> bloc;
 
-  /// Selector function to extract [ApiState] from the composite state.
-  final ApiState<SuccessData> Function(CompositeState) getApiState;
+  /// Selector function to extract [AsyncState] from the composite state.
+  final AsyncState<SuccessData> Function(CompositeState) getAsyncState;
 
-  /// Builder for the [ApiStateSuccess] state.
+  /// Builder for the [AsyncStateSuccess] state.
   final Widget Function(BuildContext context, SuccessData data) successBuilder;
 
-  /// Optional builder for [ApiStateInitial] state. Defaults to [SizedBox.shrink].
+  /// Optional builder for [AsyncStateInitial] state. Defaults to [SizedBox.shrink].
   final Widget Function(BuildContext context)? initialBuilder;
 
-  /// Optional builder for [ApiStateLoading] state.
+  /// Optional builder for [AsyncStateLoading] state.
   final Widget Function(BuildContext context)? loadingBuilder;
 
-  /// Optional builder for [ApiStateFailure] state.
+  /// Optional builder for [AsyncStateFailure] state.
   final Widget Function(
     BuildContext context,
     Failure failure,
@@ -46,14 +47,14 @@ class ApiStateBuilder<CompositeState, SuccessData> extends StatelessWidget {
     return BlocBuilder<BlocBase<CompositeState>, CompositeState>(
       bloc: bloc,
       buildWhen: (previous, current) =>
-          getApiState(previous) != getApiState(current),
+          getAsyncState(previous) != getAsyncState(current),
       builder: (context, state) {
-        final apiState = getApiState(state);
+        final asyncState = getAsyncState(state);
 
-        return switch (apiState) {
-          ApiStateInitial<SuccessData>() =>
+        return switch (asyncState) {
+          AsyncStateInitial<SuccessData>() =>
             initialBuilder?.call(context) ?? const SizedBox.shrink(),
-          ApiStateLoading<SuccessData>() =>
+          AsyncStateLoading<SuccessData>() =>
             loadingBuilder?.call(context) ??
                 (emptyEntity != null
                     ? Skeletonizer(
@@ -61,9 +62,9 @@ class ApiStateBuilder<CompositeState, SuccessData> extends StatelessWidget {
                             successBuilder(context, emptyEntity as SuccessData),
                       )
                     : const Center(child: CircularProgressIndicator())),
-          ApiStateSuccess<SuccessData>(:final value) =>
+          AsyncStateSuccess<SuccessData>(:final value) =>
             successBuilder(context, value),
-          ApiStateFailure<SuccessData>(:final failure, :final retryFunction) =>
+          AsyncStateFailure<SuccessData>(:final failure, :final retryFunction) =>
             errorBuilder?.call(context, failure, retryFunction) ??
                 Center(
                   child: Column(

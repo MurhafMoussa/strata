@@ -1,10 +1,10 @@
 # strata_state
 
-BLoC state utilities and `ApiStateHandler` lifecycle management for the Strata framework.
+BLoC state utilities and `AsyncHandler` lifecycle management for the Strata framework.
 
 ## Overview
 
-`strata_state` provides BLoC/Cubit state handling delegates and UI builder widgets for managing `ApiState<T>` transitions. It includes `ApiStateHostMixin` for managing multiple API lifecycles inside a single Cubit/BLoC state, `DisposableApiStateHandlerInterface`, `ApiStateHandler` with force re-execution override and diagnostic warnings for skipped loading calls, and `ApiStateBuilder` for UI rendering.
+`strata_state` provides BLoC/Cubit state handling delegates and UI builder widgets for managing `AsyncState<T>` transitions. It includes `AsyncHostMixin` for managing multiple async lifecycles inside a single Cubit/BLoC state, `DisposableAsyncHandlerInterface`, `AsyncHandler` with force re-execution override and diagnostic warnings for skipped loading calls, and `AsyncBuilder` for UI rendering.
 
 ## Architectural Rules & Boundaries
 
@@ -14,57 +14,57 @@ BLoC state utilities and `ApiStateHandler` lifecycle management for the Strata f
 
 ## Key Components
 
-### 1. `DisposableApiStateHandlerInterface` & `ApiStateHandler`
-A delegate class managed by `ApiStateHostMixin` that encapsulates loading, success, failure, retry, and cancellation for a specific `ApiState` field within a composite BLoC state.
+### 1. `DisposableAsyncHandlerInterface` & `AsyncHandler`
+A delegate class managed by `AsyncHostMixin` that encapsulates loading, success, failure, retry, and cancellation for a specific `AsyncState` field within a composite BLoC state.
 
 ```dart
 import 'package:strata_state/strata_state.dart';
 
 // Force execution during loading state
-await apiHandler.handleApiCall(
-  apiCall: fetchUserDataUseCase,
+await asyncHandler.handleAsync(
+  asyncCall: fetchUserDataUseCase,
   params: userId,
   force: true,
 );
 
-// Default behavior (force: false) logs a diagnostic warning via CoreLoggerInterface if state is already loading
-await apiHandler.handleApiCall(
-  apiCall: fetchUserDataUseCase,
+// Default behavior (force: false) logs a diagnostic warning via StrataLoggerInterface if state is already loading
+await asyncHandler.handleAsync(
+  asyncCall: fetchUserDataUseCase,
   params: userId,
   force: false,
 );
 ```
 
-### 2. `ApiStateHostMixin`
-Mixin for `BlocBase` (Cubit/BLoC) that automatically creates and disposes `ApiStateHandler` instances on `close()`.
+### 2. `AsyncHostMixin`
+Mixin for `BlocBase` (Cubit/BLoC) that automatically creates and disposes `AsyncHandler` instances on `close()`.
 
 ```dart
-class UserCubit extends Cubit<UserState> with ApiStateHostMixin<UserState> {
+class UserCubit extends Cubit<UserState> with AsyncHostMixin<UserState> {
   UserCubit() : super(UserState.initial()) {
-    _profileHandler = createApiHandler(
-      getApiState: (state) => state.profileState,
-      setApiState: (state, apiState) => state.copyWith(profileState: apiState),
+    _profileHandler = createAsyncHandler(
+      getAsyncState: (state) => state.profileState,
+      setAsyncState: (state, asyncState) => state.copyWith(profileState: asyncState),
     );
   }
 
-  late final ApiStateHandler<UserState, User> _profileHandler;
+  late final AsyncHandler<UserState, User> _profileHandler;
 
   Future<void> fetchProfile(String userId) async {
-    await _profileHandler.handleApiCall(
-      apiCall: getUserUseCase,
+    await _profileHandler.handleAsync(
+      asyncCall: getUserUseCase,
       params: userId,
     );
   }
 }
 ```
 
-### 3. `ApiStateBuilder`
-Flutter widget that listens to a specific `ApiState` on a BLoC/Cubit and renders pattern-matched UI states (`initial`, `loading`, `success`, `failure`).
+### 3. `AsyncBuilder`
+Flutter widget that listens to a specific `AsyncState` on a BLoC/Cubit and renders pattern-matched UI states (`initial`, `loading`, `success`, `failure`).
 
 ```dart
-ApiStateBuilder<UserState, User>(
+AsyncBuilder<UserState, User>(
   bloc: userCubit,
-  getApiState: (state) => state.profileState,
+  getAsyncState: (state) => state.profileState,
   emptyEntity: User.empty(),
   successBuilder: (context, user) => UserProfileWidget(user: user),
 );

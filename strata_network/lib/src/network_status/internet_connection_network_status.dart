@@ -6,7 +6,7 @@ import 'package:strata_core/strata_core.dart';
 /// Concrete implementation of [NetworkStatusInterface] using [InternetConnection].
 class InternetConnectionNetworkStatus(
   final InternetConnection _internetConnection,
-  final CoreLoggerInterface _logger,
+  final StrataLoggerInterface _logger,
 ) implements NetworkStatusInterface {
   this {
     _init();
@@ -26,8 +26,7 @@ class InternetConnectionNetworkStatus(
   }
 
   @override
-  Future<bool> get isConnected async =>
-      _internetConnection.hasInternetAccess;
+  Future<bool> get isConnected async => _internetConnection.hasInternetAccess;
 
   Future<void> _init() async {
     _subscription =

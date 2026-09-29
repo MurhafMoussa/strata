@@ -1,19 +1,19 @@
 import 'package:strata_core/strata_core.dart';
-import 'package:test/test.dart';
 import 'package:talker/talker.dart';
+import 'package:test/test.dart';
 
 void main() {
-  group('TalkerCoreLogger', () {
+  group('TalkerStrataLogger', () {
     late Talker talker;
-    late TalkerCoreLogger logger;
+    late TalkerStrataLogger logger;
 
     setUp(() {
       talker = Talker(settings: TalkerSettings(useConsoleLogs: false));
-      logger = TalkerCoreLogger(talker);
+      logger = TalkerStrataLogger(talker);
     });
 
     test('default constructor initializes Talker instance', () {
-      final defaultLogger = TalkerCoreLogger();
+      final defaultLogger = TalkerStrataLogger();
       expect(defaultLogger.talker, isA<Talker>());
     });
 

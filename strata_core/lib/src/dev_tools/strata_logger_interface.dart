@@ -1,5 +1,5 @@
 /// Abstract logging interface for application-wide logging contracts.
-abstract interface class CoreLoggerInterface {
+abstract interface class StrataLoggerInterface {
   /// Log verbose message for detailed diagnostics.
   void verbose(dynamic message, [Object? error, StackTrace? stackTrace]);
 
@@ -16,9 +16,10 @@ abstract interface class CoreLoggerInterface {
   void error(dynamic message, [Object? error, StackTrace? stackTrace]);
 }
 
-/// No-op implementation of [CoreLoggerInterface] for testing or silent mode.
-class NoOpCoreLogger implements CoreLoggerInterface {
-  const NoOpCoreLogger();
+/// No-op implementation of [StrataLoggerInterface] for testing or silent mode.
+class NoOpStrataLogger implements StrataLoggerInterface {
+  /// Creates a [NoOpStrataLogger].
+  const NoOpStrataLogger();
 
   @override
   void verbose(dynamic message, [Object? error, StackTrace? stackTrace]) {}

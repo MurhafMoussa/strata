@@ -1,11 +1,11 @@
 import 'package:talker/talker.dart';
 
-import 'core_logger_interface.dart';
+import 'strata_logger_interface.dart';
 
-/// [CoreLoggerInterface] implementation backed by [Talker].
-class TalkerCoreLogger implements CoreLoggerInterface {
-  /// Creates a [TalkerCoreLogger] with an optional [Talker] instance.
-  TalkerCoreLogger([Talker? talker]) : talker = talker ?? Talker();
+/// [StrataLoggerInterface] implementation backed by [Talker].
+class TalkerStrataLogger implements StrataLoggerInterface {
+  /// Creates a [TalkerStrataLogger] with an optional [Talker] instance.
+  TalkerStrataLogger([Talker? talker]) : talker = talker ?? Talker();
 
   /// The underlying [Talker] instance.
   final Talker talker;

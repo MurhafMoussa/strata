@@ -2,9 +2,9 @@ import 'package:strata_core/strata_core.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('CoreLoggerInterface', () {
-    test('NoOpCoreLogger methods execute without throwing errors', () {
-      const logger = NoOpCoreLogger();
+  group('StrataLoggerInterface', () {
+    test('NoOpStrataLogger methods execute without throwing errors', () {
+      const logger = NoOpStrataLogger();
 
       expect(() => logger.verbose('verbose log'), returnsNormally);
       expect(() => logger.debug('debug log'), returnsNormally);

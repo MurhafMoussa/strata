@@ -10,12 +10,12 @@ import '../helpers/test_helpers.dart';
 
 void main() {
   late MockInternetConnection mockInternetConnection;
-  late MockCoreLogger mockLogger;
+  late MockStrataLogger mockLogger;
   late StreamController<InternetStatus> statusController;
 
   setUp(() {
     mockInternetConnection = MockInternetConnection();
-    mockLogger = MockCoreLogger();
+    mockLogger = MockStrataLogger();
     statusController = StreamController<InternetStatus>.broadcast();
 
     when(() => mockInternetConnection.onStatusChange)

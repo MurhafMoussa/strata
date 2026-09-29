@@ -8,12 +8,12 @@ import '../helpers/test_helpers.dart';
 void main() {
   group('TalkerDioLogger Integration Tests', () {
     late Talker talker;
-    late TalkerCoreLogger logger;
+    late TalkerStrataLogger logger;
     late TalkerDioLogger interceptor;
 
     setUp(() {
       talker = Talker(settings: TalkerSettings(useConsoleLogs: false));
-      logger = TalkerCoreLogger(talker);
+      logger = TalkerStrataLogger(talker);
       interceptor = TalkerDioLogger(
         talker: logger.talker,
         settings: const TalkerDioLoggerSettings(
@@ -35,7 +35,10 @@ void main() {
 
     test('onResponse logs HTTP response details to talker history', () {
       final options = createTestRequestOptions(path: '/test');
-      final response = createTestResponse<dynamic>(requestOptions: options, statusCode: 200);
+      final response = createTestResponse<dynamic>(
+        requestOptions: options,
+        statusCode: 200,
+      );
       final handler = MockResponseInterceptorHandler();
 
       interceptor.onResponse(response, handler);

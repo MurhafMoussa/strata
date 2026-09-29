@@ -12,12 +12,11 @@
 
 | Package | Purpose | Primary Dependencies |
 | :--- | :--- | :--- |
-| **`strata_core`** | Domain entities, failures, logger contracts, `SensitiveStorageInterface`, `ApiState<T>`, and `UseCase` contracts. | Pure Dart (`equatable`, `fpdart`, `get_it`) |
+| **`strata_core`** | Domain entities, failures, logger contracts (`StrataLoggerInterface`), `SensitiveStorageInterface`, `AsyncState<T>`, and `UseCase` contracts. | Pure Dart (`equatable`, `fpdart`, `get_it`) |
 | **`strata_network`** | Dio HTTP client wrapper (`ApiHandlerInterface`), token lifecycle management (`TokenManagerInterface`), and request cancellation (`CancelRequestManagerInterface`). | `strata_core`, `dio`, `mutex`, `internet_connection_checker_plus` |
 | **`strata_storage`** | Secure persistence adapters (`FlutterSecureSensitiveStorage`), encryption key rotation, and storage directory helpers. | `strata_core`, `flutter_secure_storage`, `path_provider` |
-| **`strata_state`** | BLoC & state management, `ApiStateHostMixin`, `ApiStateHandler`, `ApiStateBuilder`, persistent Cubits (`ThemeCubit`, `LocalizationCubit`, `PlatformCubit`), and Value Selectors. | `strata_core`, `flutter_bloc`, `hydrated_bloc` |
-| **`strata_navigation`** | GoRouter configuration wrappers (`CoreRouter`), route guards (`RouteGuardInterface`), and navigation service. | `strata_core`, `go_router` |
-| **`strata_ui`** | Decoupled UI components (`CorePaginationWidget`, form fields, `CoreImage`, `CoreCarousel`), theme/spacing constants, and reactive wrappers. | `strata_core`, `flutter`, `easy_refresh`, `skeletonizer` |
+| **`strata_state`** | BLoC & state management, `AsyncHostMixin`, `AsyncHandler`, `AsyncBuilder`, persistent Cubits (`ThemeCubit`, `LocalizationCubit`, `PlatformCubit`), and Value Selectors. | `strata_core`, `flutter_bloc`, `hydrated_bloc` |
+| **`strata_ui`** | Decoupled UI components (`StrataPaginationWidget`, form fields, `CoreImage`, `CoreCarousel`), theme/spacing constants, and reactive wrappers. | `strata_core`, `flutter`, `skeletonizer` |
 | **`strata`** | Meta-package orchestrating `StrataInitializer` and exporting all sub-packages for single-line app setup. | All Strata sub-packages |
 
 ---
@@ -207,13 +206,13 @@ final dbDir = await StorageDirectoryHelper.getDatabaseDirectory(
 
 ### 🔄 3. State Management (`strata_state`)
 
-Strata decouples pure `ApiState<T>` from BLoC, allowing lightweight state modeling with `ApiStateHostMixin`, `ApiStateHandler`, and `ApiStateBuilder`.
+Strata decouples pure `AsyncState<T>` from BLoC, allowing lightweight state modeling with `AsyncHostMixin`, `AsyncHandler`, and `AsyncBuilder`.
 
-#### Pure `ApiState<T>` Representation
+#### Pure `AsyncState<T>` Representation
 
 ```dart
-// ApiState<T> variants: Initial, Loading, Success, Failure
-const state = ApiState<String>.loading();
+// AsyncState<T> variants: Initial, Loading, Success, Failure
+const state = AsyncState<String>.loading();
 
 state.when(
   initial: () => print('Initial'),
@@ -223,31 +222,31 @@ state.when(
 );
 ```
 
-#### Building Cubits with `ApiStateHostMixin`
+#### Building Cubits with `AsyncHostMixin`
 
-`ApiStateHostMixin` provides streamlined API handling with state safety and automatic Cubit disposal cleanup:
+`AsyncHostMixin` provides streamlined async handling with state safety and automatic Cubit disposal cleanup:
 
 ```dart
 @freezed
 class UserState with _$UserState {
   const factory UserState({
-    @Default(ApiState.initial()) ApiState<List<User>> usersState,
+    @Default(AsyncState.initial()) AsyncState<List<User>> usersState,
   }) = _UserState;
 }
 
-class UserCubit extends Cubit<UserState> with ApiStateHostMixin<UserState> {
+class UserCubit extends Cubit<UserState> with AsyncHostMixin<UserState> {
   final UserRepositoryInterface _repository;
 
-  late final _usersHandler = createApiHandler<List<User>>(
-    getApiState: (state) => state.usersState,
-    setApiState: (state, apiState) => state.copyWith(usersState: apiState),
+  late final _usersHandler = createAsyncHandler<List<User>>(
+    getAsyncState: (state) => state.usersState,
+    setAsyncState: (state, asyncState) => state.copyWith(usersState: asyncState),
   );
 
   UserCubit(this._repository) : super(const UserState());
 
   Future<void> fetchUsers({bool force = false}) async {
-    await _usersHandler.handleApiCall(
-      apiCall: (params) => _repository.getUsers(params),
+    await _usersHandler.handleAsync(
+      asyncCall: (params) => _repository.getUsers(params),
       params: const PagePaginationParams(page: 1, limit: 20),
       force: force, // Force re-execution even if currently loading
     );
@@ -255,12 +254,12 @@ class UserCubit extends Cubit<UserState> with ApiStateHostMixin<UserState> {
 }
 ```
 
-#### Rendering State in UI with `ApiStateBuilder`
+#### Rendering State in UI with `AsyncBuilder`
 
 ```dart
-ApiStateBuilder<UserState, List<User>>(
+AsyncBuilder<UserState, List<User>>(
   bloc: context.read<UserCubit>(),
-  getApiState: (state) => state.usersState,
+  getAsyncState: (state) => state.usersState,
   loadingBuilder: (context) => const CircularProgressIndicator(),
   successBuilder: (context, users) => ListView.builder(
     itemCount: users.length,
@@ -291,74 +290,28 @@ print('Device Model: ${deviceInfo?.model}, OS: ${deviceInfo?.osVersion}');
 
 ---
 
-### 🧭 4. Navigation (`strata_navigation`)
+### 🎨 4. UI Components (`strata_ui`)
 
-`strata_navigation` configures `GoRouter` with route guards and cross-layer navigation service abstractions.
+`strata_ui` contains decoupled, responsive UI components isolated from router dependencies.
 
-#### Navigating from BLoCs/Services via `NavigationServiceInterface`
+#### High-Performance Paginated List (`StrataPaginationWidget`)
 
-```dart
-final navService = GetIt.I<NavigationServiceInterface>();
-
-// Navigate to location without context dependency
-navService.go('/dashboard');
-
-// Push sub-route with parameters
-navService.push('/details', extra: {'id': '123'});
-
-// Pop current route
-navService.pop();
-```
-
-#### Defining Custom Route Guards
+`StrataPaginationWidget` provides platform-adaptive pull-to-refresh (`RefreshIndicator.adaptive`), infinite load-more via scroll notifications, full-screen and bottom loading states (`Skeletonizer`), inline page-N retry bar, desktop shortcuts (`Ctrl+R` / `Cmd+R`), and offline cache badges:
 
 ```dart
-class AuthRouteGuard implements RouteGuardInterface {
-  final AuthTokenManagerInterface _tokenManager;
-
-  AuthRouteGuard(this._tokenManager);
-
-  @override
-  Future<String?> evaluate(BuildContext context, GoRouterState state) async {
-    final isAuthenticated = await _tokenManager.hasValidToken();
-    if (!isAuthenticated) {
-      return '/login'; // Redirect path
-    }
-    return null; // Proceed to requested path
-  }
-}
-```
-
----
-
-### 🎨 5. UI Components (`strata_ui`)
-
-`strata_ui` contains decoupled, responsive UI components isolated from BLoC and router dependencies.
-
-#### High-Performance Paginated List (`CorePaginationWidget`)
-
-`CorePaginationWidget` integrates **EasyRefresh v3** with pull-to-refresh, infinite load-more, skeleton loading (`Skeletonizer`), and error retry handling:
-
-```dart
-CorePaginationWidget<Product, PageMeta>(
-  paginationFunction: (batch, limit, {requestId}) async {
-    return await productRepository.getProducts(
-      PagePaginationParams(page: batch, limit: limit),
-    );
-  },
-  paginationStrategy: const PagePaginationStrategy(limit: 20),
-  scrollableBuilder: (context, response, controller) {
-    return ListView.builder(
+StrataPaginationWidget<ProductItem, PaginationMetaModel>(
+  state: paginationState,
+  onRefresh: () async => context.read<ProductBloc>().add(const RefreshProducts()),
+  onLoadMore: () async => context.read<ProductBloc>().add(const LoadMoreProducts()),
+  emptyEntity: ProductItem.empty,
+  scrollableBuilder: (context, controller, items) {
+    return ListView.separated(
       controller: controller,
-      itemCount: response.data.length,
-      itemBuilder: (context, index) {
-        final product = response.data[index];
-        return ListTile(title: Text(product.name));
-      },
+      itemCount: items.length,
+      separatorBuilder: (_, __) => const Divider(),
+      itemBuilder: (context, index) => ListTile(title: Text(items[index].name)),
     );
   },
-  emptyEntity: const Product(id: '', name: '', price: 0),
-  emptyBuilder: (context) => const Center(child: Text('No products found')),
 )
 ```
 

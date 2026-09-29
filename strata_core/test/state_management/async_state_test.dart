@@ -3,9 +3,9 @@ import 'package:strata_core/strata_core.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('ApiState<T>', () {
+  group('AsyncState<T>', () {
     test('initial state assertions and getters', () {
-      const state = ApiState<String>.initial();
+      const state = AsyncState<String>.initial();
 
       expect(state.isInitial, isTrue);
       expect(state.isLoading, isFalse);
@@ -22,7 +22,7 @@ void main() {
     });
 
     test('loading state assertions and getters', () {
-      const state = ApiState<String>.loading();
+      const state = AsyncState<String>.loading();
 
       expect(state.isInitial, isFalse);
       expect(state.isLoading, isTrue);
@@ -38,7 +38,7 @@ void main() {
     });
 
     test('success state assertions and getters', () {
-      const state = ApiState<String>.success('Hello World');
+      const state = AsyncState<String>.success('Hello World');
 
       expect(state.isInitial, isFalse);
       expect(state.isLoading, isFalse);
@@ -56,7 +56,7 @@ void main() {
     test('failure state assertions and getters', () {
       void dummyRetry() {}
       const failure = StorageFailure(message: 'Disk error');
-      final state = ApiState<String>.failure(failure, retryFunction: dummyRetry);
+      final state = AsyncState<String>.failure(failure, retryFunction: dummyRetry);
 
       expect(state.isInitial, isFalse);
       expect(state.isLoading, isFalse);
@@ -74,12 +74,12 @@ void main() {
 
     group('pattern matching (when / maybeWhen)', () {
       test('when invokes matching callback for all cases', () {
-        const initial = ApiState<int>.initial();
-        const loading = ApiState<int>.loading();
-        const success = ApiState<int>.success(42);
-        const failure = ApiState<int>.failure(UnknownFailure(message: 'err'));
+        const initial = AsyncState<int>.initial();
+        const loading = AsyncState<int>.loading();
+        const success = AsyncState<int>.success(42);
+        const failure = AsyncState<int>.failure(UnknownFailure(message: 'err'));
 
-        String evaluate(ApiState<int> state) {
+        String evaluate(AsyncState<int> state) {
           return state.when(
             initial: () => 'initial',
             loading: () => 'loading',
@@ -95,8 +95,8 @@ void main() {
       });
 
       test('maybeWhen falls back to orElse or executes specified callback', () {
-        const success = ApiState<int>.success(100);
-        const loading = ApiState<int>.loading();
+        const success = AsyncState<int>.success(100);
+        const loading = AsyncState<int>.loading();
 
         final resultSuccess = success.maybeWhen(
           success: (d) => d * 2,
@@ -112,9 +112,9 @@ void main() {
       });
 
       test('maybeWhen executes initial/loading/failure callbacks when supplied', () {
-        const initial = ApiState<int>.initial();
-        const loading = ApiState<int>.loading();
-        const failure = ApiState<int>.failure(UnknownFailure(message: 'err'));
+        const initial = AsyncState<int>.initial();
+        const loading = AsyncState<int>.loading();
+        const failure = AsyncState<int>.failure(UnknownFailure(message: 'err'));
 
         expect(
           initial.maybeWhen(initial: () => 'init', orElse: () => 'other'),

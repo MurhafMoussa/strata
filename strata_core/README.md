@@ -14,13 +14,13 @@ The foundational, zero-dependency pure Dart domain package for the Strata framew
 
 ## Key Components
 
-### 1. `ApiState<T>`
+### 1. `AsyncState<T>`
 A pure functional sealed class representing asynchronous state transitions independent of BLoC or Flutter:
 
 ```dart
 import 'package:strata_core/strata_core.dart';
 
-final state = ApiState<String>.success('data');
+final state = AsyncState<String>.success('data');
 
 // Pattern matching
 final message = state.when(
@@ -63,11 +63,11 @@ abstract interface class SensitiveStorageInterface {
 }
 ```
 
-### 5. `CoreLoggerInterface`
-Abstract logging interface and `NoOpCoreLogger` for testing or quiet environments:
+### 5. `StrataLoggerInterface`
+Abstract logging interface and `NoOpStrataLogger` for testing or quiet environments:
 
 ```dart
-abstract interface class CoreLoggerInterface {
+abstract interface class StrataLoggerInterface {
   void verbose(dynamic message, [Object? error, StackTrace? stackTrace]);
   void debug(dynamic message, [Object? error, StackTrace? stackTrace]);
   void info(dynamic message, [Object? error, StackTrace? stackTrace]);

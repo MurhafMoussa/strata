@@ -28,17 +28,21 @@ _Avoid_: CancelRequestManagerImpl
 The token lifecycle interface in `strata_network` responsible for storing, retrieving, refreshing, and clearing authentication tokens across network requests.
 _Avoid_: AuthTokenManager
 
-**ApiState**:
+**StrataLoggerInterface**:
+The abstract logging interface in `strata_core` establishing application-wide logging contracts for verbose, debug, info, warning, and error diagnostics.
+_Avoid_: CoreLoggerInterface, ILogger
+
+**AsyncState**:
 The pure functional union state representation in `strata_core` representing `initial`, `loading`, `success(T data)`, and `failure(Failure failure)` independent of any state management library.
-_Avoid_: CoreState, BlocApiState
+_Avoid_: CoreState, BlocApiState, ApiState
 
-**ApiStateHandler**:
-The composite delegate in `strata_state` managing loading/success/failure/retry lifecycles for an `ApiState` field within a BLoC/Cubit state.
-_Avoid_: ApiStateController
+**AsyncHandler**:
+The composite delegate in `strata_state` managing loading/success/failure/retry lifecycles for an `AsyncState` field within a BLoC/Cubit state.
+_Avoid_: ApiStateController, ApiStateHandler, AsyncStateController
 
-**DisposableApiStateHandlerInterface**:
-The contract in `strata_state` implemented by `ApiStateHandler` for managing disposable state delegates within BLoC/Cubit state hosts without using the legacy `IApiStateHandler` name.
-_Avoid_: IApiStateHandler, ApiStateHandlerInterface
+**DisposableAsyncHandlerInterface**:
+The contract in `strata_state` implemented by `AsyncHandler` for managing disposable state delegates within BLoC/Cubit state hosts without using the legacy `IApiStateHandler` or `DisposableApiStateHandlerInterface` name.
+_Avoid_: IApiStateHandler, ApiStateHandlerInterface, DisposableApiStateHandlerInterface
 
 **ApiRequestOptions**:
 The immutable configuration class in `strata_network` passed to `ApiHandlerInterface` containing per-request headers, retry options, authorization flags, and progress callbacks.

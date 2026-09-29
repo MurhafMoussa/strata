@@ -79,15 +79,17 @@ extension StrataNetworkDiExtension on GetIt {
         );
 
         if (config.enableLogging) {
-          final talker = isRegistered<CoreLoggerInterface>() &&
-                  get<CoreLoggerInterface>() is TalkerCoreLogger
-              ? (get<CoreLoggerInterface>() as TalkerCoreLogger).talker
+          final talker =
+              isRegistered<StrataLoggerInterface>() &&
+                  get<StrataLoggerInterface>() is TalkerStrataLogger
+              ? (get<StrataLoggerInterface>() as TalkerStrataLogger).talker
               : (isRegistered<Talker>() ? get<Talker>() : null);
 
           dio.interceptors.add(
             TalkerDioLogger(
               talker: talker,
-              settings: config.talkerDioLoggerSettings ??
+              settings:
+                  config.talkerDioLoggerSettings ??
                   const TalkerDioLoggerSettings(
                     printRequestData: true,
                     printResponseData: true,

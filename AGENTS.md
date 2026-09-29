@@ -9,4 +9,4 @@ ACT workflow semantics, Workflow Storage selection, artifact vocabulary, and dom
 - **Dependency Boundaries**: Sub-packages must adhere strictly to their defined boundaries. For example, `strata_core` must never import Flutter or third-party UI/network packages.
 - **Boundary Verification**: Run package boundary audit tests (`package_dependency_test.dart`) whenever modifying package dependencies or imports.
 - **100% Test Coverage Requirement**: All sub-packages (`strata_core`, `strata_network`, `strata_state`, `strata_ui`, etc.) must achieve and maintain 100% test coverage across all public APIs, BLoCs, cubits, state classes, strategies, and utilities using `bloc_test` and shared test helpers (`*_test_helpers.dart`).
-- **Domain Conventions**: Refer to `GLOSSARY.md` for canonical naming (`ApiState`, `SensitiveStorageInterface`, `*Interface` suffix rule).
+- **Domain Conventions**: Refer to `GLOSSARY.md` for canonical naming (`AsyncState`, `SensitiveStorageInterface`, `*Interface` suffix rule).

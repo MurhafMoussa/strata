@@ -2,42 +2,42 @@ import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
 import '../error_handling/failures/failure.dart';
 
-/// Pure functional API state representation for async workflows.
-sealed class ApiState<T> extends Equatable {
-  const ApiState();
+/// Pure functional async state representation for asynchronous workflows.
+sealed class AsyncState<T> extends Equatable {
+  const AsyncState();
 
-  const factory ApiState.initial() = ApiStateInitial<T>;
+  const factory AsyncState.initial() = AsyncStateInitial<T>;
 
-  const factory ApiState.loading() = ApiStateLoading<T>;
+  const factory AsyncState.loading() = AsyncStateLoading<T>;
 
-  const factory ApiState.success(T data) = ApiStateSuccess<T>;
+  const factory AsyncState.success(T data) = AsyncStateSuccess<T>;
 
-  const factory ApiState.failure(
+  const factory AsyncState.failure(
     Failure failure, {
     void Function()? retryFunction,
-  }) = ApiStateFailure<T>;
+  }) = AsyncStateFailure<T>;
 
-  bool get isInitial => this is ApiStateInitial<T>;
-  bool get isLoading => this is ApiStateLoading<T>;
-  bool get isSuccess => this is ApiStateSuccess<T>;
-  bool get isFailure => this is ApiStateFailure<T>;
+  bool get isInitial => this is AsyncStateInitial<T>;
+  bool get isLoading => this is AsyncStateLoading<T>;
+  bool get isSuccess => this is AsyncStateSuccess<T>;
+  bool get isFailure => this is AsyncStateFailure<T>;
 
   Option<T> get data => switch (this) {
-        ApiStateSuccess<T>(:final value) => some(value),
+        AsyncStateSuccess<T>(:final value) => some(value),
         _ => none(),
       };
 
   T? get dataOrNull => data.toNullable();
 
   Option<Failure> get failureObject => switch (this) {
-        ApiStateFailure<T>(:final failure) => some(failure),
+        AsyncStateFailure<T>(:final failure) => some(failure),
         _ => none(),
       };
 
   Failure? get failureOrNull => failureObject.toNullable();
 
   void Function()? get retryFunction => switch (this) {
-        ApiStateFailure<T>(:final retryFunction) => retryFunction,
+        AsyncStateFailure<T>(:final retryFunction) => retryFunction,
         _ => null,
       };
 
@@ -51,10 +51,10 @@ sealed class ApiState<T> extends Equatable {
   }) {
     final failureCb = failure;
     return switch (this) {
-      ApiStateInitial<T>() => initial(),
-      ApiStateLoading<T>() => loading(),
-      ApiStateSuccess<T>(:final value) => success(value),
-      ApiStateFailure<T>(failure: final f, retryFunction: final r) =>
+      AsyncStateInitial<T>() => initial(),
+      AsyncStateLoading<T>() => loading(),
+      AsyncStateSuccess<T>(:final value) => success(value),
+      AsyncStateFailure<T>(failure: final f, retryFunction: final r) =>
         failureCb(f, r),
     };
   }
@@ -69,35 +69,35 @@ sealed class ApiState<T> extends Equatable {
   }) {
     final failureCb = failure;
     return switch (this) {
-      ApiStateInitial<T>() => initial != null ? initial() : orElse(),
-      ApiStateLoading<T>() => loading != null ? loading() : orElse(),
-      ApiStateSuccess<T>(:final value) =>
+      AsyncStateInitial<T>() => initial != null ? initial() : orElse(),
+      AsyncStateLoading<T>() => loading != null ? loading() : orElse(),
+      AsyncStateSuccess<T>(:final value) =>
         success != null ? success(value) : orElse(),
-      ApiStateFailure<T>(failure: final f, retryFunction: final r) =>
+      AsyncStateFailure<T>(failure: final f, retryFunction: final r) =>
         failureCb != null ? failureCb(f, r) : orElse(),
     };
   }
 }
 
 /// Initial state before any request has started.
-final class ApiStateInitial<T> extends ApiState<T> {
-  const ApiStateInitial();
+final class AsyncStateInitial<T> extends AsyncState<T> {
+  const AsyncStateInitial();
 
   @override
   List<Object?> get props => [];
 }
 
 /// Loading state while the async request is executing.
-final class ApiStateLoading<T> extends ApiState<T> {
-  const ApiStateLoading();
+final class AsyncStateLoading<T> extends AsyncState<T> {
+  const AsyncStateLoading();
 
   @override
   List<Object?> get props => [];
 }
 
 /// Success state containing the result [value].
-final class ApiStateSuccess<T> extends ApiState<T> {
-  const ApiStateSuccess(this.value);
+final class AsyncStateSuccess<T> extends AsyncState<T> {
+  const AsyncStateSuccess(this.value);
 
   final T value;
 
@@ -106,8 +106,8 @@ final class ApiStateSuccess<T> extends ApiState<T> {
 }
 
 /// Failure state containing the [failure] and optional [retryFunction].
-final class ApiStateFailure<T> extends ApiState<T> {
-  const ApiStateFailure(this.failure, {this.retryFunction});
+final class AsyncStateFailure<T> extends AsyncState<T> {
+  const AsyncStateFailure(this.failure, {this.retryFunction});
 
   final Failure failure;
   @override
