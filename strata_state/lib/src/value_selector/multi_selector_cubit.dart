@@ -2,12 +2,14 @@ import 'value_selector_cubit.dart';
 import 'value_selector_state.dart';
 
 /// A Cubit that manages multi-selection of values.
-class MultiSelectorCubit<T>({
-  required super.values,
-  required super.valueSetter,
-  super.enableUnselect = true,
-  super.defaultSelectedValues,
-}) extends ValueSelectorCubit<T> {
+class MultiSelectorCubit<T> extends ValueSelectorCubit<T> {
+  /// Creates a [MultiSelectorCubit] instance.
+  MultiSelectorCubit({
+    required super.values,
+    super.enableUnselect = true,
+    super.defaultSelectedValues,
+    super.onSelectionChanged,
+  });
 
   @override
   void toggleSelection(T value) {
@@ -19,7 +21,8 @@ class MultiSelectorCubit<T>({
     } else {
       currentSelected.add(value);
     }
-    emit(ValueSelectorState(currentSelected));
-    valueSetter.call(currentSelected);
+    final nextSelected = List<T>.unmodifiable(currentSelected);
+    emit(ValueSelectorState<T>(nextSelected));
+    onSelectionChanged?.call(nextSelected);
   }
 }

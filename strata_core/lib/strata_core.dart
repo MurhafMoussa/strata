@@ -7,6 +7,7 @@ export 'src/models/pagination_response_model.dart';
 export 'src/network/cancel_request_manager_interface.dart';
 export 'src/network/network_status_interface.dart';
 export 'src/pagination/pagination_cache_policy.dart';
+export 'src/pagination/pagination_params_interface.dart';
 export 'src/pagination/pagination_strategy.dart';
 export 'src/platform/device_info_entity.dart';
 export 'src/platform/platform_service_interface.dart';

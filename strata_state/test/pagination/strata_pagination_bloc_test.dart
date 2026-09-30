@@ -18,26 +18,6 @@ class CustomParam extends Equatable {
   List<Object?> get props => [page, limit, query];
 }
 
-class ThrowingParam {
-  String get requestId => throw Exception('Getter error');
-}
-
-class DummyThrowingStrategy extends PaginationStrategy<ThrowingParam> {
-  const DummyThrowingStrategy();
-
-  @override
-  ThrowingParam getInitialParams({required int limit}) => ThrowingParam();
-
-  @override
-  ThrowingParam? getNextParams<T, M extends MetaModel>({
-    required List<T> currentItems,
-    M? meta,
-    String? nextCursor,
-    required int limit,
-  }) =>
-      null;
-}
-
 class DummyCacheAdapter<T extends Identifiable<String>, M extends MetaModel>
     extends PaginationCacheAdapterInterface<T, M> {
   final Map<String, PaginationResponseModel<T, M>> _storage = {};
@@ -478,24 +458,6 @@ void main() {
                   (params) => 'custom_${params.page}_${params.limit}',
               fetcher: (params, {requestId}) async {
                 expect(requestId, equals('custom_1_10'));
-                return createSuccessFuture([const TestItem('1')]);
-              },
-            );
-
-        bloc.add(const StrataPaginationInitialFetched(limit: 10));
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        await bloc.close();
-      },
-    );
-
-    test(
-      'Fallback in _generateRequestId when getter throws exception',
-      () async {
-        final bloc =
-            StrataPaginationBloc<TestItem, NoMetaModel, ThrowingParam>(
-              paginationStrategy: const DummyThrowingStrategy(),
-              fetcher: (params, {requestId}) async {
-                expect(requestId, isNotNull);
                 return createSuccessFuture([const TestItem('1')]);
               },
             );

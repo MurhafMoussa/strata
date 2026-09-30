@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../models/pagination_response_model.dart';
+import 'pagination_params_interface.dart';
 
 /// Immutable parameter value container for page-number based pagination.
 ///
@@ -7,8 +8,10 @@ import '../models/pagination_response_model.dart';
 /// ```dart
 /// const params = PagePaginationParams(page: 1, limit: 20);
 /// print(params.page); // 1
+/// print(params.requestId); // 'page_1_limit_20'
 /// ```
-class PagePaginationParams extends Equatable {
+class PagePaginationParams extends Equatable
+    implements PaginationParamsInterface {
   /// Creates a [PagePaginationParams] instance.
   const PagePaginationParams({
     required this.page,
@@ -22,6 +25,9 @@ class PagePaginationParams extends Equatable {
   final int limit;
 
   @override
+  String get requestId => 'page_${page}_limit_$limit';
+
+  @override
   List<Object?> get props => [page, limit];
 }
 
@@ -31,8 +37,10 @@ class PagePaginationParams extends Equatable {
 /// ```dart
 /// const params = SkipPaginationParams(skip: 0, limit: 20);
 /// print(params.skip); // 0
+/// print(params.requestId); // 'skip_0_limit_20'
 /// ```
-class SkipPaginationParams extends Equatable {
+class SkipPaginationParams extends Equatable
+    implements PaginationParamsInterface {
   /// Creates a [SkipPaginationParams] instance.
   const SkipPaginationParams({
     required this.skip,
@@ -46,6 +54,9 @@ class SkipPaginationParams extends Equatable {
   final int limit;
 
   @override
+  String get requestId => 'skip_${skip}_limit_$limit';
+
+  @override
   List<Object?> get props => [skip, limit];
 }
 
@@ -55,8 +66,10 @@ class SkipPaginationParams extends Equatable {
 /// ```dart
 /// const params = CursorPaginationParams(cursor: 'cursor_123', limit: 20);
 /// print(params.cursor); // 'cursor_123'
+/// print(params.requestId); // 'cursor_cursor_123_limit_20'
 /// ```
-class CursorPaginationParams extends Equatable {
+class CursorPaginationParams extends Equatable
+    implements PaginationParamsInterface {
   /// Creates a [CursorPaginationParams] instance.
   const CursorPaginationParams({
     this.cursor,
@@ -70,6 +83,9 @@ class CursorPaginationParams extends Equatable {
   final int limit;
 
   @override
+  String get requestId => 'cursor_${cursor}_limit_$limit';
+
+  @override
   List<Object?> get props => [cursor, limit];
 }
 
@@ -78,7 +94,9 @@ class CursorPaginationParams extends Equatable {
 /// Implementations calculate initial and subsequent page request parameters as pure functions
 /// without maintaining mutable internal state.
 ///
-/// Generic parameter [P] represents the parameter model passed to data fetchers.
+/// Generic parameter [P] represents the parameter model passed to data fetchers,
+/// constrained to [PaginationParamsInterface] so every parameter model exposes
+/// a type-safe [PaginationParamsInterface.requestId].
 ///
 /// `@example`
 /// ```dart
@@ -90,7 +108,7 @@ class CursorPaginationParams extends Equatable {
 /// );
 /// print(nextParams?.page); // 2
 /// ```
-abstract class PaginationStrategy<P> {
+abstract class PaginationStrategy<P extends PaginationParamsInterface> {
   /// Const constructor for pure value strategies.
   const PaginationStrategy();
 

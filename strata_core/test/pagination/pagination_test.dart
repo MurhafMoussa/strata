@@ -112,6 +112,37 @@ void main() {
     });
   });
 
+  group('PaginationParamsInterface', () {
+    test('PagePaginationParams implements interface and exposes requestId', () {
+      const params = PagePaginationParams(page: 1, limit: 20);
+      expect(params, isA<PaginationParamsInterface>());
+      expect(params.requestId, equals('page_1_limit_20'));
+    });
+
+    test('SkipPaginationParams implements interface and exposes requestId', () {
+      const params = SkipPaginationParams(skip: 10, limit: 15);
+      expect(params, isA<PaginationParamsInterface>());
+      expect(params.requestId, equals('skip_10_limit_15'));
+    });
+
+    test('CursorPaginationParams implements interface and exposes requestId', () {
+      const params = CursorPaginationParams(cursor: 'token_1', limit: 25);
+      expect(params, isA<PaginationParamsInterface>());
+      expect(params.requestId, equals('cursor_token_1_limit_25'));
+    });
+
+    test('CursorPaginationParams requestId handles null cursor', () {
+      const params = CursorPaginationParams(limit: 5);
+      expect(params.requestId, equals('cursor_null_limit_5'));
+    });
+
+    test('requestId changes when pagination position changes', () {
+      const page1 = PagePaginationParams(page: 1, limit: 20);
+      const page2 = PagePaginationParams(page: 2, limit: 20);
+      expect(page1.requestId, isNot(equals(page2.requestId)));
+    });
+  });
+
   group('PagePaginationStrategy', () {
     const strategy = PagePaginationStrategy();
 

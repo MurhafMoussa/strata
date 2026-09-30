@@ -4,11 +4,11 @@
 
 **Blocked by:** 03 (Make `Identifiable<T>` generic)
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Define `PaginationParamsInterface` in `strata_core` with `String get requestId`
-- [ ] Constrain `P extends PaginationParamsInterface` in `StrataPaginationBloc` (replacing `P extends Object`)
-- [ ] Update `_generateRequestId` to use `params.requestId` directly instead of dynamic reflection
-- [ ] Update `PaginationStrategy` and all param classes to implement `PaginationParamsInterface`
-- [ ] Update all affected tests
-- [ ] Run `dart analyze` and `dart test` in `strata_core` and `strata_state`
+- [x] Define `PaginationParamsInterface` in `strata_core` with `String get requestId`
+- [x] Constrain `P extends PaginationParamsInterface` in `StrataPaginationBloc` (replacing `P extends Object`)
+- [x] Update `_generateRequestId` to use `params.requestId` directly instead of dynamic reflection
+- [x] Update `PaginationStrategy` and all param classes to implement `PaginationParamsInterface`
+- [x] Update all affected tests
+- [x] Run `dart analyze` and `dart test` in `strata_core` and `strata_state`

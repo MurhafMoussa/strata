@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Fix `ValueSelectorCubit.updateAvailableValues` to replace the `values` list reference instead of calling `clear()` / `addAll()` in place
-- [ ] Simplify the callback pattern (remove `valueSetter` callback if it causes side effects, or make it explicit)
-- [ ] Update `SingleSelectorCubit` and `MultiSelectorCubit` if they override `updateAvailableValues`
-- [ ] Update tests to verify immutability (original list reference unchanged after update)
-- [ ] Run `dart analyze` and `dart test` in `strata_state`
+- [x] Fix `ValueSelectorCubit.updateAvailableValues` to replace the `values` list reference instead of calling `clear()` / `addAll()` in place
+- [x] Simplify the callback pattern (remove `valueSetter` callback if it causes side effects, or make it explicit)
+- [x] Update `SingleSelectorCubit` and `MultiSelectorCubit` if they override `updateAvailableValues`
+- [x] Update tests to verify immutability (original list reference unchanged after update)
+- [x] Run `dart analyze` and `dart test` in `strata_state`

@@ -5,6 +5,11 @@ import 'package:strata_core/strata_core.dart';
 import 'package:strata_state/strata_state.dart';
 
 import '../widgets/strata_scrollable_content_with_fab.dart';
+import 'strata_bottom_loader.dart';
+import 'strata_bottom_retry_bar.dart';
+import 'strata_empty_state.dart';
+import 'strata_error_view.dart';
+import 'strata_offline_badge.dart';
 
 /// Inherited widget for providing default configuration to descendant [StrataPaginationWidget]s.
 ///
@@ -469,7 +474,7 @@ class _StrataPaginationWidgetState<T extends Identifiable<String>, M extends Met
         body =
             widget.emptyBuilder?.call(context) ??
             parentConfig?.emptyBuilder?.call(context) ??
-            const _DefaultEmptyState();
+            const StrataEmptyState();
       }
       // 4. Populated Data State
       else {
@@ -602,7 +607,7 @@ class _StrataPaginationWidgetState<T extends Identifiable<String>, M extends Met
       return customError(context, failure, onRetry);
     }
 
-    return _DefaultErrorWidget(message: failure.message, onRetry: onRetry);
+    return StrataErrorView(message: failure.message, onRetry: onRetry);
   }
 
   Widget _buildContentLayout({
@@ -631,12 +636,12 @@ class _StrataPaginationWidgetState<T extends Identifiable<String>, M extends Met
     final offlineWidget = showBadge
         ? (widget.offlineBadgeBuilder?.call(context) ??
               parentConfig?.offlineBadgeBuilder?.call(context) ??
-              const _DefaultOfflineBadge())
+              const StrataOfflineBadge())
         : null;
 
     Widget? footerWidget;
     if (isLoadingMore) {
-      footerWidget = const _DefaultBottomLoader();
+      footerWidget = const StrataBottomLoader();
     } else if (isPageFetchFailure) {
       final customRetryMore =
           widget.retryMoreBuilder ?? parentConfig?.retryMoreBuilder;
@@ -646,7 +651,7 @@ class _StrataPaginationWidgetState<T extends Identifiable<String>, M extends Met
               failure ?? const ServerFailure(message: 'Error', statusCode: 500),
               onRetryMore,
             )
-          : _DefaultBottomRetryBar(failure: failure, onRetryMore: onRetryMore);
+          : StrataBottomRetryBar(failure: failure, onRetryMore: onRetryMore);
     }
 
     final scrollableChild = activeBuilder(context, activeController, items);
@@ -665,127 +670,4 @@ class _StrataPaginationWidgetState<T extends Identifiable<String>, M extends Met
   }
 }
 
-class _DefaultEmptyState extends StatelessWidget {
-  const _DefaultEmptyState();
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.inbox_outlined, size: 64),
-            SizedBox(height: 16),
-            Text('No items found'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DefaultOfflineBadge extends StatelessWidget {
-  const _DefaultOfflineBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: const Key('strata_pagination_offline_badge'),
-      color: Colors.orange.shade100,
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.wifi_off, size: 16, color: Colors.orange.shade800),
-          const SizedBox(width: 8),
-          Text(
-            'Viewing offline cached data',
-            style: TextStyle(
-              color: Colors.orange.shade900,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DefaultBottomLoader extends StatelessWidget {
-  const _DefaultBottomLoader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      key: const Key('strata_pagination_bottom_loader'),
-      padding: const EdgeInsets.all(16.0),
-      alignment: Alignment.center,
-      child: const CircularProgressIndicator.adaptive(),
-    );
-  }
-}
-
-class _DefaultBottomRetryBar extends StatelessWidget {
-  const _DefaultBottomRetryBar({
-    required this.failure,
-    required this.onRetryMore,
-  });
-
-  final Failure? failure;
-  final VoidCallback? onRetryMore;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      key: const Key('strata_pagination_retry_bar'),
-      color: theme.colorScheme.errorContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              failure?.message ?? 'Failed to load next page',
-              style: TextStyle(color: theme.colorScheme.onErrorContainer),
-            ),
-          ),
-          TextButton.icon(
-            key: const Key('strata_pagination_retry_button'),
-            onPressed: onRetryMore,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class const _DefaultErrorWidget({
-  super.key,
-  required final String message,
-  final VoidCallback? onRetry,
-}) extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            if (onRetry != null)
-              FilledButton(onPressed: onRetry, child: const Text('Retry')),
-          ],
-        ),
-      ),
-    );
-  }
-}

@@ -12,7 +12,8 @@ import 'strata_pagination_state.dart';
 /// Generic parameters:
 /// - [T]: Item type extending [Identifiable].
 /// - [M]: Metadata model extending [MetaModel].
-/// - [P]: Parameter model passed to data fetchers.
+/// - [P]: Parameter model passed to data fetchers, constrained to
+///   [PaginationParamsInterface] so request IDs are type-safe.
 ///
 /// `@example`
 /// ```dart
@@ -27,7 +28,7 @@ import 'strata_pagination_state.dart';
 class StrataPaginationBloc<
   T extends Identifiable<String>,
   M extends MetaModel,
-  P extends Object
+  P extends PaginationParamsInterface
 >
     extends Bloc<StrataPaginationEvent<T>, StrataPaginationState<T, M>> {
   /// Creates a [StrataPaginationBloc] instance.
@@ -101,14 +102,7 @@ class StrataPaginationBloc<
     if (requestIdGenerator != null) {
       return requestIdGenerator!(params);
     }
-    try {
-      final dynamic p = params;
-      final dynamic reqId = p.requestId;
-      if (reqId is String && reqId.isNotEmpty) {
-        return reqId;
-      }
-    } catch (_) {}
-    return params.toString();
+    return params.requestId;
   }
 
   void _cancelActiveRequest({String reason = 'New fetch initiated'}) {
