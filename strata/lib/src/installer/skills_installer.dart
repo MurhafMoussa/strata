@@ -366,7 +366,7 @@ class AuthRepository implements AuthRepositoryInterface {
         final accessToken = data['access_token'] as String;
         final refreshToken = data['refresh_token'] as String;
 
-        await _tokenManager.saveTokens(
+        await _tokenManager.setTokens(
           accessToken: accessToken,
           refreshToken: refreshToken,
         );
@@ -387,8 +387,8 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   ResultFuture<bool> isAuthenticated() async {
-    final token = await _tokenManager.getAccessToken();
-    return Right(token != null && token.isNotEmpty);
+    final token = await _tokenManager.accessToken;
+    return Right(token.isNotEmpty);
   }
 }
 ```
@@ -886,7 +886,7 @@ flutter test test/features/<feature_name>
 
   static const String strataPagination = r'''---
 name: strata-pagination
-description: Implement infinite scrolling and pagination using StrataPaginationBloc and StrataPaginationWidget, supporting Page, Offset, and Cursor strategies, offline caching, and companion unit tests.
+description: Implement infinite scrolling and pagination using StrataPaginationBloc and StrataPaginationWidget, supporting Page, Skip, and Cursor strategies, offline caching, and companion unit tests.
 ---
 
 # Strata Pagination Skill
@@ -908,16 +908,16 @@ flutter pub add -d bloc_test mocktail
 
 ### Step 2: Pagination Scheme Selection
 Determine the pagination mechanic used by the target API endpoint:
-- **Page Scheme** (`page`, `pageSize`, `totalPages`): Use `PagePaginationStrategy`.
-- **Offset Scheme** (`offset`, `limit`, `total`): Use `OffsetPaginationStrategy`.
-- **Cursor Scheme** (`cursor`, `nextCursor`): Use `CursorPaginationStrategy`.
+- **Page Scheme** (`page`, `limit`, `totalCount`): Use `PagePaginationStrategy` and `PagePaginationParams`.
+- **Skip/Offset Scheme** (`skip`, `limit`, `totalCount`): Use `SkipPaginationStrategy` and `SkipPaginationParams`.
+- **Cursor Scheme** (`cursor`, `limit`): Use `CursorPaginationStrategy` and `CursorPaginationParams`.
 
 *Tip*: If unsure, inspect a sample backend response JSON:
 ```json
 // Example Page-based JSON:
-{ "data": [...], "meta": { "page": 1, "total_pages": 5 } }
+{ "data": [...], "meta": { "page": 1, "limit": 20, "total_count": 100 } }
 // Example Cursor-based JSON:
-{ "items": [...], "next_cursor": "eyJpZCI6MTAwfQ==" }
+{ "data": [...], "meta": { "cursor": "eyJpZCI6MTAwfQ==", "limit": 20 } }
 ```
 
 ---
@@ -951,66 +951,29 @@ class OrderEntity extends Equatable implements Identifiable<String> {
 }
 ```
 
-#### 2. Pagination Request Params
-`lib/features/orders/data/models/order_pagination_params.dart`:
-```dart
-import 'package:strata/strata.dart';
-
-class OrderPaginationParams implements PaginationParamsInterface {
-  const OrderPaginationParams({
-    required this.page,
-    required this.pageSize,
-    this.requestId,
-  });
-
-  final int page;
-  final int pageSize;
-
-  @override
-  final String? requestId;
-
-  @override
-  OrderPaginationParams copyWith({String? requestId}) {
-    return OrderPaginationParams(
-      page: page,
-      pageSize: pageSize,
-      requestId: requestId ?? this.requestId,
-    );
-  }
-}
-```
-
-#### 3. BLoC Instantiation
+#### 2. BLoC Factory Instantiation
 `lib/features/orders/presentation/blocs/orders_pagination_bloc.dart`:
 ```dart
 import 'package:strata/strata.dart';
 import '../../domain/entities/order_entity.dart';
-import '../models/order_pagination_params.dart';
 
-StrataPaginationBloc<OrderEntity, PageMetaModel, OrderPaginationParams> createOrdersPaginationBloc({
+StrataPaginationBloc<OrderEntity, PaginationMetaModel, PagePaginationParams> createOrdersPaginationBloc({
   required ApiHandlerInterface apiHandler,
   CancelRequestManagerInterface? cancelRequestManager,
+  PaginationCacheAdapterInterface<OrderEntity, PaginationMetaModel>? cacheAdapter,
+  PaginationCachePolicy cachePolicy = PaginationCachePolicy.networkOnly,
 }) {
-  return StrataPaginationBloc<OrderEntity, PageMetaModel, OrderPaginationParams>(
+  return StrataPaginationBloc<OrderEntity, PaginationMetaModel, PagePaginationParams>(
+    paginationStrategy: const PagePaginationStrategy(),
     cancelRequestManager: cancelRequestManager,
-    paginationStrategy: PagePaginationStrategy<OrderPaginationParams>(
-      initialParams: const OrderPaginationParams(page: 1, pageSize: 20),
-      computeNextPage: (currentParams, lastResponse) {
-        final currentPage = currentParams.page;
-        final totalPages = lastResponse.meta.totalPages;
-        if (currentPage >= totalPages) return null; // No more pages
-        return OrderPaginationParams(
-          page: currentPage + 1,
-          pageSize: currentParams.pageSize,
-        );
-      },
-    ),
+    cacheAdapter: cacheAdapter,
+    cachePolicy: cachePolicy,
     fetcher: (params, {requestId}) async {
-      return apiHandler.get<PaginationResponseModel<OrderEntity, PageMetaModel>>(
+      return apiHandler.get<PaginationResponseModel<OrderEntity, PaginationMetaModel>>(
         '/orders',
         queryParameters: {
           'page': params.page,
-          'limit': params.pageSize,
+          'limit': params.limit,
         },
         requestId: requestId,
         parser: (json) {
@@ -1021,10 +984,8 @@ StrataPaginationBloc<OrderEntity, PageMetaModel, OrderPaginationParams> createOr
                     amount: (item['amount'] as num).toDouble(),
                   ))
               .toList();
-          final meta = PageMetaModel(
-            currentPage: json['meta']['page'] as int,
-            totalPages: json['meta']['total_pages'] as int,
-            totalItems: json['meta']['total'] as int,
+          final meta = PaginationMetaModel.fromJson(
+            json['meta'] as Map<String, dynamic>? ?? {},
           );
           return PaginationResponseModel(data: data, meta: meta);
         },
@@ -1034,60 +995,72 @@ StrataPaginationBloc<OrderEntity, PageMetaModel, OrderPaginationParams> createOr
 }
 ```
 
-#### 4. Presentation with `StrataPaginationWidget`
+#### 3. Presentation with `StrataPaginationWidget`
 `lib/features/orders/presentation/pages/orders_page.dart`:
 ```dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:strata/strata.dart';
 import '../../domain/entities/order_entity.dart';
 import '../blocs/orders_pagination_bloc.dart';
-import '../models/order_pagination_params.dart';
 
-class OrdersPage extends StatefulWidget {
+class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
 
   @override
-  State<OrdersPage> createState() => _OrdersPageState();
-}
-
-class _OrdersPageState extends State<OrdersPage> {
-  late final StrataPaginationBloc<OrderEntity, PageMetaModel, OrderPaginationParams> _bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _bloc = createOrdersPaginationBloc(apiHandler: GetIt.I<ApiHandlerInterface>());
-    _bloc.add(const StrataPaginationInitialFetched());
-  }
-
-  @override
-  void dispose() {
-    _bloc.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Orders')),
-      body: StrataPaginationWidget<OrderEntity, PageMetaModel>(
-        bloc: _bloc,
-        itemBuilder: (context, order, index) => ListTile(
-          title: Text(order.title),
-          subtitle: Text('ID: ${order.id}'),
-          trailing: Text('\$${order.amount.toStringAsFixed(2)}'),
-        ),
-        emptyBuilder: (context) => const Center(
-          child: Text('No orders found'),
-        ),
-        errorBuilder: (context, failure, onRetry) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Failed to load: ${failure.message}'),
-              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
-            ],
-          ),
+    return BlocProvider(
+      create: (context) => createOrdersPaginationBloc(
+        apiHandler: GetIt.I<ApiHandlerInterface>(),
+      )..add(const StrataPaginationInitialFetched()),
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Orders')),
+        body: BlocBuilder<
+          StrataPaginationBloc<OrderEntity, PaginationMetaModel, PagePaginationParams>,
+          StrataPaginationState<OrderEntity, PaginationMetaModel>
+        >(
+          builder: (context, state) {
+            final bloc = context.read<
+              StrataPaginationBloc<OrderEntity, PaginationMetaModel, PagePaginationParams>
+            >();
+
+            return StrataPaginationWidget<OrderEntity, PaginationMetaModel>(
+              state: state,
+              onRefresh: () async => bloc.add(const StrataPaginationRefreshed()),
+              onLoadMore: () async => bloc.add(const StrataPaginationMoreFetched()),
+              onRetry: () => bloc.add(const StrataPaginationInitialFetched()),
+              onRetryMore: () => bloc.add(const StrataPaginationMoreFetched()),
+              scrollableBuilder: (context, scrollController, items) {
+                return ListView.separated(
+                  key: const Key('strata_pagination_list'),
+                  controller: scrollController,
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const Divider(),
+                  itemBuilder: (context, index) {
+                    final order = items[index];
+                    return ListTile(
+                      title: Text(order.title),
+                      subtitle: Text('ID: ${order.id}'),
+                      trailing: Text('\$${order.amount.toStringAsFixed(2)}'),
+                    );
+                  },
+                );
+              },
+              emptyBuilder: (context) => const Center(
+                child: Text('No orders found'),
+              ),
+              errorBuilder: (context, failure, onRetry) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Failed to load: ${failure.message}'),
+                    if (onRetry != null)
+                      ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -1107,12 +1080,18 @@ import 'package:mocktail/mocktail.dart';
 import 'package:strata/strata.dart';
 
 import 'package:my_app/features/orders/domain/entities/order_entity.dart';
-import 'package:my_app/features/orders/data/models/order_pagination_params.dart';
+import 'package:my_app/features/orders/presentation/blocs/orders_pagination_bloc.dart';
 
 class MockApiHandler extends Mock implements ApiHandlerInterface {}
 
 void main() {
   late MockApiHandler mockApiHandler;
+
+  setUpAll(() {
+    registerFallbackValue(
+      const PaginationResponseModel<OrderEntity, PaginationMetaModel>(),
+    );
+  });
 
   setUp(() {
     mockApiHandler = MockApiHandler();
@@ -1123,43 +1102,32 @@ void main() {
     OrderEntity(id: '2', title: 'Order 2', amount: 20.0),
   ];
 
-  final tResponse = PaginationResponseModel<OrderEntity, PageMetaModel>(
+  const tResponse = PaginationResponseModel<OrderEntity, PaginationMetaModel>(
     data: tOrders,
-    meta: const PageMetaModel(currentPage: 1, totalPages: 2, totalItems: 4),
+    meta: PaginationMetaModel(page: 1, limit: 20, totalCount: 2),
   );
 
   blocTest<
-    StrataPaginationBloc<OrderEntity, PageMetaModel, OrderPaginationParams>,
-    StrataPaginationState<OrderEntity, PageMetaModel>
+    StrataPaginationBloc<OrderEntity, PaginationMetaModel, PagePaginationParams>,
+    StrataPaginationState<OrderEntity, PaginationMetaModel>
   >(
     'emits [loading, succeeded] on initial fetch',
     build: () {
-      when(() => mockApiHandler.get<PaginationResponseModel<OrderEntity, PageMetaModel>>(
+      when(() => mockApiHandler.get<PaginationResponseModel<OrderEntity, PaginationMetaModel>>(
             any(),
             queryParameters: any(named: 'queryParameters'),
             requestId: any(named: 'requestId'),
             parser: any(named: 'parser'),
-          )).thenAnswer((_) async => Right(tResponse));
+          )).thenAnswer((_) async => const Right(tResponse));
 
-      return StrataPaginationBloc<OrderEntity, PageMetaModel, OrderPaginationParams>(
-        paginationStrategy: PagePaginationStrategy(
-          initialParams: const OrderPaginationParams(page: 1, pageSize: 20),
-          computeNextPage: (current, res) => null,
-        ),
-        fetcher: (params, {requestId}) => mockApiHandler.get(
-          '/orders',
-          queryParameters: {'page': params.page},
-          requestId: requestId,
-        ),
-      );
+      return createOrdersPaginationBloc(apiHandler: mockApiHandler);
     },
     act: (bloc) => bloc.add(const StrataPaginationInitialFetched()),
     expect: () => [
-      predicate<StrataPaginationState<OrderEntity, PageMetaModel>>(
-        (s) => s.status == PaginationStatus.loading,
-      ),
-      predicate<StrataPaginationState<OrderEntity, PageMetaModel>>(
-        (s) => s.status == PaginationStatus.succeeded && s.items == tOrders,
+      const StrataPaginationState<OrderEntity, PaginationMetaModel>.loading(),
+      const StrataPaginationState<OrderEntity, PaginationMetaModel>.succeeded(
+        paginatedResponseModel: tResponse,
+        hasReachedMax: true,
       ),
     ],
   );
@@ -1175,7 +1143,7 @@ flutter analyze
 flutter test test/features/<feature_name>
 ```
 
-**Completion Criteria**: Zero analyzer warnings, and pagination BLoC tests pass with complete state coverage (`loading`, `succeeded`, `loadingMore`, `failed`).
+**Completion Criteria**: Zero analyzer warnings, exactly one layout builder provided (`scrollableBuilder`), and pagination BLoC tests pass with complete state coverage.
 ''';
 
   /// Map of all available skills by name.

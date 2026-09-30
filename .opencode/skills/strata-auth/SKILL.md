@@ -133,7 +133,7 @@ class AuthRepository implements AuthRepositoryInterface {
         final accessToken = data['access_token'] as String;
         final refreshToken = data['refresh_token'] as String;
 
-        await _tokenManager.saveTokens(
+        await _tokenManager.setTokens(
           accessToken: accessToken,
           refreshToken: refreshToken,
         );
@@ -154,8 +154,8 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   ResultFuture<bool> isAuthenticated() async {
-    final token = await _tokenManager.getAccessToken();
-    return Right(token != null && token.isNotEmpty);
+    final token = await _tokenManager.accessToken;
+    return Right(token.isNotEmpty);
   }
 }
 ```
