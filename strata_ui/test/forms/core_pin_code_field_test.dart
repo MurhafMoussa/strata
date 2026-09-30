@@ -4,7 +4,7 @@ import 'package:strata_ui/strata_ui.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
 void main() {
-  group('CorePinCodeField Widget Tests', () {
+  group('StrataPinCodeField Widget Tests', () {
     testWidgets('renders pin code input field', (tester) async {
       String? completedPin;
 
@@ -19,7 +19,7 @@ void main() {
               ),
             ],
             child: (context) => Scaffold(
-              body: CorePinCodeField(
+              body: StrataPinCodeField(
                 name: 'pin',
                 length: 4,
                 onCompleted: (pin) => completedPin = pin,
@@ -29,7 +29,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CorePinCodeField), findsOneWidget);
+      expect(find.byType(StrataPinCodeField), findsOneWidget);
       expect(completedPin, isNull);
     });
   });

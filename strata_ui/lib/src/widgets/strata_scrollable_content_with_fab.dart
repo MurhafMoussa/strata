@@ -1,23 +1,21 @@
 import 'package:flutter/material.dart';
-import '../constants/animation_params_manager.dart';
+
 import '../responsive/responsive_functions.dart';
 
-class const CoreScrollableContentWithFab({
+class const StrataScrollableContentWithFab({
   super.key,
-  required final Widget Function(ScrollController controller)
-      scrollableBuilder,
+  required final Widget Function(ScrollController controller) scrollableBuilder,
   final EdgeInsets? padding,
-  final Duration scrollDuration = AnimationParamsManager.scrollToTopDuration,
-  final Curve scrollCurve = AnimationParamsManager.animateToCurve,
+  final Duration scrollDuration = const Duration(milliseconds: 300),
+  final Curve scrollCurve = Curves.easeInOut,
 }) extends StatefulWidget {
-
   @override
-  State<CoreScrollableContentWithFab> createState() =>
-      _CoreScrollableContentWithFabState();
+  State<StrataScrollableContentWithFab> createState() =>
+      _StrataScrollableContentWithFabState();
 }
 
-class _CoreScrollableContentWithFabState
-    extends State<CoreScrollableContentWithFab> {
+class _StrataScrollableContentWithFabState
+    extends State<StrataScrollableContentWithFab> {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isFabVisible = ValueNotifier<bool>(false);
 

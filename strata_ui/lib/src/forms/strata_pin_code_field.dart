@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:pinput/pinput.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
-class const CorePinCodeField({
+class const StrataPinCodeField({
   super.key,
   required final String name,
   final int length = 6,
@@ -67,12 +67,11 @@ class const CorePinCodeField({
   final Duration? debounceTime,
   final String Function(String value)? transformValue,
 }) extends StatefulWidget {
-
   @override
-  State<CorePinCodeField> createState() => _CorePinCodeFieldState();
+  State<StrataPinCodeField> createState() => _StrataPinCodeFieldState();
 }
 
-class _CorePinCodeFieldState extends State<CorePinCodeField> {
+class _StrataPinCodeFieldState extends State<StrataPinCodeField> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
 

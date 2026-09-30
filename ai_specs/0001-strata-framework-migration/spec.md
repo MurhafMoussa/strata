@@ -37,7 +37,7 @@ Rebrand and refactor `coore` into **`strata`**, an enterprise Melos monorepo com
    - `strata_storage`: Infrastructure adapters including `FlutterSecureSensitiveStorage` and database setup/key-rotation helpers. Depends on `strata_core` and `flutter_secure_storage`. [L1, L2, L4]
    - `strata_state`: BLoC state utilities including `ApiStateHostMixin`, `DisposableApiStateHandlerInterface`, `ApiStateHandler`, and `ApiStateBuilder`. Depends on `strata_core` and `flutter_bloc`. [L8, L11]
    - `strata_navigation`: GoRouter configuration wrappers, route guards, and `ScreenParams`. Depends on `strata_core` and `go_router`. [L9]
-   - `strata_ui`: Reusable UI components (`CorePaginationWidget`, custom form fields, `CoreImage`, theme/spacing). Depends on `strata_core` and `flutter`. MUST NOT depend on `flutter_bloc` or `go_router`. [L9]
+   - `strata_ui`: Reusable UI components (`StrataPaginationWidget`, custom form fields, `StrataImage`). Depends on `strata_core` and `flutter`. MUST NOT depend on `flutter_bloc` or `go_router`. [L9]
    - `strata`: Orchestrator meta-package exporting all sub-packages for single-line app initialization. [L7]
 
 ### Interface & Class Naming Conventions

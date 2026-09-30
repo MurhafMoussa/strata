@@ -4,9 +4,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:strata_core/strata_core.dart';
 import 'package:strata_state/strata_state.dart';
 
-import '../constants/padding_manager.dart';
-import '../widgets/core_default_error_widget.dart';
-import '../widgets/core_scrollable_content_with_fab.dart';
+import '../widgets/strata_scrollable_content_with_fab.dart';
 
 /// Inherited widget for providing default configuration to descendant [StrataPaginationWidget]s.
 ///
@@ -90,14 +88,16 @@ class StrataPaginationConfig<T extends Identifiable, M extends MetaModel>
     BuildContext context,
     Failure failure,
     VoidCallback? retry,
-  )? errorBuilder;
+  )?
+  errorBuilder;
 
   /// Default retry bar builder for page-N fetch failure.
   final Widget Function(
     BuildContext context,
     Failure failure,
     VoidCallback? onRetryMore,
-  )? retryMoreBuilder;
+  )?
+  retryMoreBuilder;
 
   /// Default offline badge builder.
   final Widget Function(BuildContext context)? offlineBadgeBuilder;
@@ -106,19 +106,15 @@ class StrataPaginationConfig<T extends Identifiable, M extends MetaModel>
   final T? emptyEntity;
 
   /// Safely attempts to retrieve the nearest ancestor [StrataPaginationConfig].
-  static StrataPaginationConfig<T, M>? maybeOf<T extends Identifiable,
-      M extends MetaModel>(
-    BuildContext context,
-  ) {
+  static StrataPaginationConfig<T, M>?
+  maybeOf<T extends Identifiable, M extends MetaModel>(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<StrataPaginationConfig<T, M>>();
   }
 
   /// Retrieves the nearest ancestor [StrataPaginationConfig] or throws an assertion error.
-  static StrataPaginationConfig<T, M> of<T extends Identifiable,
-      M extends MetaModel>(
-    BuildContext context,
-  ) {
+  static StrataPaginationConfig<T, M>
+  of<T extends Identifiable, M extends MetaModel>(BuildContext context) {
     final cfg = maybeOf<T, M>(context);
     assert(cfg != null, 'No StrataPaginationConfig<$T, $M> found in context');
     return cfg!;
@@ -167,7 +163,9 @@ class StrataPaginationWidget<T extends Identifiable, M extends MetaModel>
   const StrataPaginationWidget({
     super.key,
     this.state,
-    @Deprecated('Use StrataPaginationState driven by StrataPaginationBloc instead.')
+    @Deprecated(
+      'Use StrataPaginationState driven by StrataPaginationBloc instead.',
+    )
     this.onFetchPage,
     this.onRefresh,
     this.onLoadMore,
@@ -199,12 +197,12 @@ class StrataPaginationWidget<T extends Identifiable, M extends MetaModel>
     this.skeletonItemCount,
     this.controller,
   }) : assert(
-          (scrollableBuilder != null ? 1 : 0) +
-                  (sliversBuilder != null ? 1 : 0) +
-                  (customBuilder != null ? 1 : 0) ==
-              1,
-          'Provide exactly one of scrollableBuilder, sliversBuilder, or customBuilder',
-        );
+         (scrollableBuilder != null ? 1 : 0) +
+                 (sliversBuilder != null ? 1 : 0) +
+                 (customBuilder != null ? 1 : 0) ==
+             1,
+         'Provide exactly one of scrollableBuilder, sliversBuilder, or customBuilder',
+       );
 
   /// Active pagination state driven by BLoC or state container.
   final StrataPaginationState<T, M>? state;
@@ -212,7 +210,9 @@ class StrataPaginationWidget<T extends Identifiable, M extends MetaModel>
   /// Deprecated internal state fetching callback.
   ///
   /// Deprecated in favor of [state] driven by [StrataPaginationBloc].
-  @Deprecated('Use StrataPaginationState driven by StrataPaginationBloc instead.')
+  @Deprecated(
+    'Use StrataPaginationState driven by StrataPaginationBloc instead.',
+  )
   final Future<void> Function(int page)? onFetchPage;
 
   /// Callback dispatched when pull-to-refresh or keyboard shortcut occurs.
@@ -244,21 +244,24 @@ class StrataPaginationWidget<T extends Identifiable, M extends MetaModel>
     BuildContext context,
     ScrollController scrollController,
     List<T> items,
-  )? scrollableBuilder;
+  )?
+  scrollableBuilder;
 
   /// Builder for custom scroll view slivers.
   final Widget Function(
     BuildContext context,
     ScrollController scrollController,
     List<T> items,
-  )? sliversBuilder;
+  )?
+  sliversBuilder;
 
   /// Builder for custom layout elements (carousels, page views, tabs).
   final Widget Function(
     BuildContext context,
     ScrollController scrollController,
     List<T> items,
-  )? customBuilder;
+  )?
+  customBuilder;
 
   /// Custom loading widget builder.
   final Widget Function(BuildContext context)? loadingBuilder;
@@ -274,14 +277,16 @@ class StrataPaginationWidget<T extends Identifiable, M extends MetaModel>
     BuildContext context,
     Failure failure,
     VoidCallback? retry,
-  )? errorBuilder;
+  )?
+  errorBuilder;
 
   /// Custom page-N fetch retry bar builder.
   final Widget Function(
     BuildContext context,
     Failure failure,
     VoidCallback? onRetryMore,
-  )? retryMoreBuilder;
+  )?
+  retryMoreBuilder;
 
   /// Custom offline data banner builder.
   final Widget Function(BuildContext context)? offlineBadgeBuilder;
@@ -344,10 +349,12 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
     final state = widget.state;
     final rawItems = state?.items ?? widget.items?.data;
     final itemsCount = rawItems?.length ?? 0;
-    final isLoadingMore = state?.isLoadingMore == true ||
+    final isLoadingMore =
+        state?.isLoadingMore == true ||
         (state == null && itemsCount > 0 && widget.isLoading);
     final isRefreshing = state?.isRefreshing == true;
-    final isLoadingInitial = state?.isLoading == true ||
+    final isLoadingInitial =
+        state?.isLoading == true ||
         state is PaginationInitial ||
         (state == null && itemsCount == 0 && widget.isLoading);
     final hasReachedMax = state?.hasReachedMax ?? widget.hasReachedMax;
@@ -384,37 +391,50 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
     final state = widget.state;
     final rawItems = state?.items ?? widget.items?.data;
 
-    final isInitialLoading = state?.isLoading == true ||
+    final isInitialLoading =
+        state?.isLoading == true ||
         state is PaginationInitial ||
         (state == null && rawItems == null && widget.isLoading);
 
-    final isInitialFailed = state is PaginationFailed ||
+    final isInitialFailed =
+        state is PaginationFailed ||
         (state == null && rawItems == null && widget.failure != null);
 
     final failure = state?.failure ?? widget.failure;
 
-    final isLoadingMore = state?.isLoadingMore == true ||
-        (state == null && rawItems != null && rawItems.isNotEmpty && widget.isLoading);
-    final isPageFetchFailure = state?.isPageFetchFailure == true ||
-        (state == null && rawItems != null && rawItems.isNotEmpty && widget.failure != null);
+    final isLoadingMore =
+        state?.isLoadingMore == true ||
+        (state == null &&
+            rawItems != null &&
+            rawItems.isNotEmpty &&
+            widget.isLoading);
+    final isPageFetchFailure =
+        state?.isPageFetchFailure == true ||
+        (state == null &&
+            rawItems != null &&
+            rawItems.isNotEmpty &&
+            widget.failure != null);
     final isFromCache = state?.isFromCache == true;
     final isOffline = state?.isOffline == true;
 
     final onRefresh = widget.onRefresh;
 
-    final onRetry = widget.onRetry ??
+    final onRetry =
+        widget.onRetry ??
         (state is PaginationFailed
             ? (state as PaginationFailed).onRetry
             : null);
 
-    final onRetryMore = widget.onRetryMore ??
+    final onRetryMore =
+        widget.onRetryMore ??
         (state is PaginationPageFetchFailure
             ? (state as PaginationPageFetchFailure).onRetryMore
             : null);
 
     final items = rawItems ?? <T>[];
 
-    final activeBuilder = widget.scrollableBuilder ??
+    final activeBuilder =
+        widget.scrollableBuilder ??
         widget.sliversBuilder ??
         widget.customBuilder!;
 
@@ -434,15 +454,20 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       else if (isInitialFailed && items.isEmpty) {
         body = _buildInitialErrorState(
           context: context,
-          failure: failure ??
-              const ServerFailure(message: 'Failed to load data', statusCode: 500),
+          failure:
+              failure ??
+              const ServerFailure(
+                message: 'Failed to load data',
+                statusCode: 500,
+              ),
           onRetry: onRetry,
           parentConfig: parentConfig,
         );
       }
       // 3. Empty Data State
       else if (items.isEmpty) {
-        body = widget.emptyBuilder?.call(context) ??
+        body =
+            widget.emptyBuilder?.call(context) ??
             parentConfig?.emptyBuilder?.call(context) ??
             const _DefaultEmptyState();
       }
@@ -471,7 +496,8 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       );
 
       // Wrap with RefreshIndicator
-      final showRefresh = widget.showRefreshIndicator &&
+      final showRefresh =
+          widget.showRefreshIndicator &&
           (parentConfig?.showRefreshIndicator ?? true) &&
           onRefresh != null;
       if (showRefresh) {
@@ -483,28 +509,26 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       }
 
       // Wrap with Desktop Scrollbar
-      final enableScrollbar = widget.enableScrollbar &&
-          (parentConfig?.enableScrollbar ?? true);
+      final enableScrollbar =
+          widget.enableScrollbar && (parentConfig?.enableScrollbar ?? true);
       if (enableScrollbar) {
-        content = Scrollbar(
-          controller: activeCtrl,
-          child: content,
-        );
+        content = Scrollbar(controller: activeCtrl, child: content);
       }
 
       return content;
     }
 
-    final enableScrollToTop = widget.enableScrollToTop ||
-        (parentConfig?.enableScrollToTop ?? false);
+    final enableScrollToTop =
+        widget.enableScrollToTop || (parentConfig?.enableScrollToTop ?? false);
     Widget content = enableScrollToTop
-        ? CoreScrollableContentWithFab(
+        ? StrataScrollableContentWithFab(
             scrollableBuilder: (ctrl) => buildTree(ctrl),
           )
         : buildTree(_activeController);
 
     // Wrap with Desktop Refresh Shortcuts (Ctrl+R / Cmd+R)
-    final enableShortcuts = widget.enableDesktopShortcuts &&
+    final enableShortcuts =
+        widget.enableDesktopShortcuts &&
         (parentConfig?.enableDesktopShortcuts ?? true) &&
         onRefresh != null;
 
@@ -516,10 +540,7 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
           const SingleActivator(LogicalKeyboardKey.keyR, meta: true): () =>
               onRefresh(),
         },
-        child: Focus(
-          autofocus: true,
-          child: content,
-        ),
+        child: Focus(autofocus: true, child: content),
       );
     }
 
@@ -534,7 +555,8 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       BuildContext context,
       ScrollController controller,
       List<T> items,
-    ) activeBuilder,
+    )
+    activeBuilder,
   }) {
     final customLoading = widget.loadingBuilder ?? parentConfig?.loadingBuilder;
     if (customLoading != null) {
@@ -559,9 +581,8 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       );
     }
 
-    final skeletonCount = widget.skeletonItemCount ??
-        parentConfig?.skeletonItemCount ??
-        20;
+    final skeletonCount =
+        widget.skeletonItemCount ?? parentConfig?.skeletonItemCount ?? 20;
 
     final mockItems = List<T>.generate(skeletonCount, (_) => emptyEntity);
 
@@ -581,10 +602,7 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       return customError(context, failure, onRetry);
     }
 
-    return CoreDefaultErrorWidget(
-      message: failure.message,
-      onRetry: onRetry,
-    );
+    return _DefaultErrorWidget(message: failure.message, onRetry: onRetry);
   }
 
   Widget _buildContentLayout({
@@ -595,7 +613,8 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       BuildContext context,
       ScrollController controller,
       List<T> items,
-    ) activeBuilder,
+    )
+    activeBuilder,
     required bool isLoadingMore,
     required bool isPageFetchFailure,
     required bool isFromCache,
@@ -604,14 +623,15 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
     required VoidCallback? onRetryMore,
     required StrataPaginationConfig<T, M>? parentConfig,
   }) {
-    final showBadge = widget.showOfflineBadge &&
+    final showBadge =
+        widget.showOfflineBadge &&
         (parentConfig?.showOfflineBadge ?? true) &&
         (isFromCache || isOffline);
 
     final offlineWidget = showBadge
         ? (widget.offlineBadgeBuilder?.call(context) ??
-            parentConfig?.offlineBadgeBuilder?.call(context) ??
-            const _DefaultOfflineBadge())
+              parentConfig?.offlineBadgeBuilder?.call(context) ??
+              const _DefaultOfflineBadge())
         : null;
 
     Widget? footerWidget;
@@ -621,11 +641,12 @@ class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
       final customRetryMore =
           widget.retryMoreBuilder ?? parentConfig?.retryMoreBuilder;
       footerWidget = customRetryMore != null
-          ? customRetryMore(context, failure ?? const ServerFailure(message: 'Error', statusCode: 500), onRetryMore)
-          : _DefaultBottomRetryBar(
-              failure: failure,
-              onRetryMore: onRetryMore,
-            );
+          ? customRetryMore(
+              context,
+              failure ?? const ServerFailure(message: 'Error', statusCode: 500),
+              onRetryMore,
+            )
+          : _DefaultBottomRetryBar(failure: failure, onRetryMore: onRetryMore);
     }
 
     final scrollableChild = activeBuilder(context, activeController, items);
@@ -651,7 +672,7 @@ class _DefaultEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Padding(
-        padding: PaddingManager.paddingHorizontal20,
+        padding: EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -740,6 +761,30 @@ class _DefaultBottomRetryBar extends StatelessWidget {
             label: const Text('Retry'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class const _DefaultErrorWidget({
+  super.key,
+  required final String message,
+  final VoidCallback? onRetry,
+}) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            if (onRetry != null)
+              FilledButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
+        ),
       ),
     );
   }

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:strata_ui/strata_ui.dart';
 
 void main() {
-  testWidgets('ContextExtensions provides correct BuildContext properties', (tester) async {
+  testWidgets('StrataContextExtensions provides correct BuildContext properties', (tester) async {
     late BuildContext capturedContext;
 
     await tester.pumpWidget(

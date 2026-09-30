@@ -4,8 +4,10 @@ import 'package:strata_ui/strata_ui.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
 void main() {
-  group('CoreTextField Widget Tests', () {
-    testWidgets('renders input field and accepts user text input', (tester) async {
+  group('StrataTextField Widget Tests', () {
+    testWidgets('renders input field and accepts user text input', (
+      tester,
+    ) async {
       String? updatedValue;
 
       await tester.pumpWidget(
@@ -19,7 +21,7 @@ void main() {
               ),
             ],
             child: (context) => Scaffold(
-              body: CoreTextField(
+              body: StrataTextField(
                 name: 'username',
                 labelText: 'Username',
                 onChanged: (val) => updatedValue = val,
@@ -35,7 +37,9 @@ void main() {
       expect(updatedValue, equals('JohnDoe'));
     });
 
-    testWidgets('shows required star indicator when showRequiredStar is true', (tester) async {
+    testWidgets('shows required star indicator when showRequiredStar is true', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: TypedFormProvider(
@@ -47,7 +51,7 @@ void main() {
               ),
             ],
             child: (context) => const Scaffold(
-              body: CoreTextField(
+              body: StrataTextField(
                 name: 'email',
                 labelText: 'Email',
                 showRequiredStar: true,

@@ -10,7 +10,7 @@ final DateFormat _hourMinuteFormat = DateFormat('hh:mm');
 final DateFormat _shortApiDateFormat = DateFormat('yy.MM.dd');
 
 /// Extension methods on [DateTime] to simplify date formatting and calculations.
-extension DateTimeX on DateTime {
+extension StrataDateTimeExtensions on DateTime {
   /// Formats the [DateTime] as 'MMMM yyyy'.
   String formatMonthYear() => _monthYearFormat.format(this);
 

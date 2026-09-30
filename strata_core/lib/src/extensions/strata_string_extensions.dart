@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 
 /// Extension methods on [String].
-extension StringExtensions on String {
+extension StrataStringExtensions on String {
   /// Tries to parse the string into a [DateTime] by testing multiple date formats.
   DateTime parseDate() {
     final formats = [

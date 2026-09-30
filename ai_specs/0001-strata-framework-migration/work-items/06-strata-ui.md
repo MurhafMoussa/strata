@@ -5,7 +5,7 @@ parent: ../spec.md
 ---
 
 ## What to build
-Implement `strata_ui` containing reusable UI components (`CorePaginationWidget`, custom form fields `CoreTextField` / `CorePinCodeField`, `CoreImage`, theme/spacing constants) completely isolated from `flutter_bloc` and `go_router` via standard Flutter callback closures.
+Implement `strata_ui` containing reusable UI components (`StrataPaginationWidget`, custom form fields `StrataTextField` / `StrataPinCodeField`, `StrataImage`) completely isolated from `flutter_bloc` and `go_router` via standard Flutter callback closures.
 
 ## Required context
 - Depends on `strata_core` and `flutter`.
@@ -14,7 +14,7 @@ Implement `strata_ui` containing reusable UI components (`CorePaginationWidget`,
 
 ## Acceptance criteria
 - [x] `strata_ui` sub-package is created.
-- [x] UI components (`CorePaginationWidget`, custom form fields, `CoreImage`, theme/spacing) are extracted.
+- [x] UI components (`StrataPaginationWidget`, custom form fields, `StrataImage`) are extracted.
 - [x] Package dependency check confirms zero references to `flutter_bloc` or `go_router`.
 - [x] Widget tests verify component rendering and event callback triggers.
 

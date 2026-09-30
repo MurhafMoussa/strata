@@ -2,11 +2,9 @@ export 'src/dev_tools/strata_logger_interface.dart';
 export 'src/dev_tools/talker_strata_logger.dart';
 export 'src/di/strata_core_di.dart';
 export 'src/error_handling/failures/failures.dart';
-export 'src/extensions/datetime_extensions.dart';
-export 'src/extensions/file_extensions.dart';
-export 'src/extensions/int_extensions.dart';
-export 'src/extensions/list_extensions.dart';
-export 'src/extensions/string_extensions.dart';
+export 'src/extensions/strata_datetime_extensions.dart';
+
+export 'src/extensions/strata_string_extensions.dart';
 export 'src/models/identifiable.dart';
 export 'src/models/pagination_response_model.dart';
 export 'src/network/cancel_request_manager_interface.dart';

@@ -11,7 +11,7 @@ typedef VisibilityToggleBuilder = Widget Function(
   ValueChanged<bool> setObscured,
 );
 
-class const CoreTextField({
+class const StrataTextField({
   super.key,
   required final String name,
   final bool enabled = true,
@@ -97,16 +97,17 @@ class const CoreTextField({
   onVisibilityChanged,
   final ValueChanged<String?>? onChanged,
 }) extends StatefulWidget {
-  this : assert(
-          !expands || (maxLines == null && minLines == null),
-          'When expands is true, maxLines and minLines must both be null.',
-        );
+  this
+    : assert(
+        !expands || (maxLines == null && minLines == null),
+        'When expands is true, maxLines and minLines must both be null.',
+      );
 
   @override
-  State<CoreTextField> createState() => _CoreTextFieldState();
+  State<StrataTextField> createState() => _StrataTextFieldState();
 }
 
-class _CoreTextFieldState extends State<CoreTextField> {
+class _StrataTextFieldState extends State<StrataTextField> {
   bool obscureText = false;
   late final TextEditingController textEditingController;
   late final FocusNode _focusNode;
@@ -190,7 +191,8 @@ class _CoreTextFieldState extends State<CoreTextField> {
                     Text(
                       '*',
                       style: TextStyle(
-                        color: widget.requiredStarColor ??
+                        color:
+                            widget.requiredStarColor ??
                             Theme.of(context).colorScheme.error,
                       ),
                     ),
@@ -201,22 +203,22 @@ class _CoreTextFieldState extends State<CoreTextField> {
 
         InputDecoration effectiveDecoration =
             (widget.decoration ?? const InputDecoration()).copyWith(
-          suffixIcon: widget.switchBetweenPrefixAndSuffix
-              ? _buildPrefixIcons()
-              : _buildSuffixIcons(value),
-          prefixIcon: widget.switchBetweenPrefixAndSuffix
-              ? _buildSuffixIcons(value)
-              : _buildPrefixIcons(),
-          labelText: widget.showRequiredStar ? null : widget.labelText,
-          label: labelWidget,
-          hintText: widget.hintText,
-          prefix: widget.prefixWidget,
-          suffix: widget.suffixWidget,
-          errorText: widget.errorBuilder == null ? error : null,
-          error: widget.errorBuilder != null && hasError
-              ? widget.errorBuilder!(context, error)
-              : null,
-        );
+              suffixIcon: widget.switchBetweenPrefixAndSuffix
+                  ? _buildPrefixIcons()
+                  : _buildSuffixIcons(value),
+              prefixIcon: widget.switchBetweenPrefixAndSuffix
+                  ? _buildSuffixIcons(value)
+                  : _buildPrefixIcons(),
+              labelText: widget.showRequiredStar ? null : widget.labelText,
+              label: labelWidget,
+              hintText: widget.hintText,
+              prefix: widget.prefixWidget,
+              suffix: widget.suffixWidget,
+              errorText: widget.errorBuilder == null ? error : null,
+              error: widget.errorBuilder != null && hasError
+                  ? widget.errorBuilder!(context, error)
+                  : null,
+            );
 
         return IgnorePointer(
           ignoring: widget.readOnly,
@@ -311,7 +313,8 @@ class _CoreTextFieldState extends State<CoreTextField> {
       );
     }
 
-    final icon = widget.visibilityIconBuilder?.call(context, obscureText) ??
+    final icon =
+        widget.visibilityIconBuilder?.call(context, obscureText) ??
         Icon(obscureText ? Icons.visibility_off : Icons.visibility);
 
     return IconButton(icon: icon, onPressed: _toggleObscure);
@@ -340,7 +343,8 @@ class _CoreTextFieldState extends State<CoreTextField> {
   Widget? _buildSuffixIcons(String? currentValue) {
     final List<Widget> suffixWidgets = [];
 
-    if (widget.enableClear && (currentValue != null && currentValue.isNotEmpty)) {
+    if (widget.enableClear &&
+        (currentValue != null && currentValue.isNotEmpty)) {
       suffixWidgets.add(_buildClearIcon());
     }
 

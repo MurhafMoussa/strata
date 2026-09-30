@@ -120,10 +120,11 @@ await tokenManager.setTokens(
 ```
 
 ### 6. Network Status (`InternetConnectionNetworkStatus`)
-Monitors device internet connectivity status conforming to `GLOSSARY.md` naming conventions:
+Monitors device internet connectivity status conforming to `GLOSSARY.md` naming conventions and `NetworkStatusInterface`. Automatically registered in `GetIt` by `registerStrataNetwork`:
 
 ```dart
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:strata_core/strata_core.dart';
 import 'package:strata_network/strata_network.dart';
 
 final networkStatus = InternetConnectionNetworkStatus(
@@ -131,7 +132,13 @@ final networkStatus = InternetConnectionNetworkStatus(
   logger,
 );
 
+// Check current connectivity
 final isConnected = await networkStatus.isConnected;
+
+// Listen to status stream (ConnectionStatus.connected, ConnectionStatus.disconnected)
+networkStatus.connectionStream.listen((status) {
+  print('Network status changed to: ${status.name}');
+});
 ```
 
 ### 7. Dependency Injection (`StrataNetworkDiExtension`)

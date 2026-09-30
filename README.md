@@ -16,7 +16,7 @@
 | **`strata_network`** | Dio HTTP client wrapper (`ApiHandlerInterface`), token lifecycle management (`TokenManagerInterface`), and request cancellation (`CancelRequestManagerInterface`). | `strata_core`, `dio`, `mutex`, `internet_connection_checker_plus` |
 | **`strata_storage`** | Secure persistence adapters (`FlutterSecureSensitiveStorage`), encryption key rotation, and storage directory helpers. | `strata_core`, `flutter_secure_storage`, `path_provider` |
 | **`strata_state`** | BLoC & state management, `AsyncHostMixin`, `AsyncHandler`, `AsyncBuilder`, persistent Cubits (`ThemeCubit`, `LocalizationCubit`), `PlatformCubit`, and Value Selectors. | `strata_core`, `flutter_bloc`, `hydrated_bloc` |
-| **`strata_ui`** | Decoupled UI components (`StrataPaginationWidget`, form fields, `CoreImage`, `CoreCarousel`), theme/spacing constants, and reactive wrappers. | `strata_core`, `flutter`, `skeletonizer` |
+| **`strata_ui`** | Decoupled UI components (`StrataPaginationWidget`, form fields, `StrataImage`), and reactive wrappers. | `strata_core`, `flutter`, `skeletonizer` |
 | **`strata`** | Meta-package orchestrating `StrataInitializer` and exporting all sub-packages for single-line app setup. | All Strata sub-packages |
 
 ---
@@ -351,13 +351,13 @@ StrataPaginationWidget<ProductItem, PaginationMetaModel>(
 
 ```dart
 // Text Field with Label and Validation
-CoreTextField(
+StrataTextField(
   label: 'Email Address',
   validator: (val) => val == null || val.isEmpty ? 'Email is required' : null,
 )
 
 // PIN / OTP Code Input Field
-CorePinCodeField(
+StrataPinCodeField(
   length: 6,
   onCompleted: (pin) => print('Entered PIN: $pin'),
 )
@@ -366,11 +366,11 @@ CorePinCodeField(
 #### Image & Display Components
 
 ```dart
-CoreImage.network(
+StrataImage.network(
   'https://example.com/avatar.jpg',
   width: 100,
   height: 100,
-  borderRadius: BorderRadiusManager.circular12,
+  borderRadius: BorderRadius.circular(12),
 )
 ```
 

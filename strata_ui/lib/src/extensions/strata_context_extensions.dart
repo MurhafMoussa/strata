@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Convenient extensions on [BuildContext] for UI layout, media queries, and themes.
-extension ContextExtensions on BuildContext {
+extension StrataContextExtensions on BuildContext {
   MediaQueryData get mediaQuery => MediaQuery.of(this);
 
   Size get size => MediaQuery.sizeOf(this);

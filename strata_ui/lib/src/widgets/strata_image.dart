@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shimmer/shimmer.dart';
 
-class CoreImage extends StatelessWidget {
-  CoreImage.file(
+class StrataImage extends StatelessWidget {
+  StrataImage.file(
     String filePath, {
     Key? key,
     double? scale,
@@ -17,18 +17,18 @@ class CoreImage extends StatelessWidget {
     BoxFit fit = BoxFit.cover,
     Alignment alignment = Alignment.center,
   }) : this._(
-          key: key,
-          imageFile: File(filePath),
-          scale: scale,
-          width: width,
-          height: height,
-          color: color,
-          colorBlendMode: colorBlendMode,
-          fit: fit,
-          alignment: alignment,
-        );
+         key: key,
+         imageFile: File(filePath),
+         scale: scale,
+         width: width,
+         height: height,
+         color: color,
+         colorBlendMode: colorBlendMode,
+         fit: fit,
+         alignment: alignment,
+       );
 
-  const CoreImage._({
+  const StrataImage._({
     super.key,
     this.imageUrl,
     this.imagePath,
@@ -69,7 +69,7 @@ class CoreImage extends StatelessWidget {
     this.borderRadius,
   });
 
-  const CoreImage.network(
+  const StrataImage.network(
     String imageUrl, {
     Key? key,
     String? placeholderAssetImage,
@@ -108,44 +108,44 @@ class CoreImage extends StatelessWidget {
     Duration? placeholderFadeInDuration,
     BorderRadiusGeometry? borderRadius,
   }) : this._(
-          key: key,
-          imageUrl: imageUrl,
-          placeholderAssetImage: placeholderAssetImage,
-          placeholderBuilder: placeholderBuilder,
-          progressIndicatorBuilder: progressIndicatorBuilder,
-          errorBuilder: errorBuilder,
-          showError: showError,
-          showProgressIndicator: showProgressIndicator,
-          height: height,
-          width: width,
-          fit: fit,
-          borderRadius: borderRadius,
-          alignment: alignment,
-          memCacheWidth: memCacheWidth,
-          memCacheHeight: memCacheHeight,
-          cacheKey: cacheKey,
-          maxWidthDiskCache: maxWidthDiskCache,
-          maxHeightDiskCache: maxHeightDiskCache,
-          shimmerBaseColor: shimmerBaseColor,
-          shimmerHighlightColor: shimmerHighlightColor,
-          placeholderForegroundColor: placeholderForegroundColor,
-          httpHeaders: httpHeaders,
-          imageBuilder: imageBuilder,
-          fadeOutDuration: fadeOutDuration,
-          fadeOutCurve: fadeOutCurve,
-          fadeInDuration: fadeInDuration,
-          fadeInCurve: fadeInCurve,
-          repeat: repeat,
-          matchTextDirection: matchTextDirection,
-          useOldImageOnUrlChange: useOldImageOnUrlChange,
-          color: color,
-          progressBarColor: progressBarColor,
-          filterQuality: filterQuality,
-          colorBlendMode: colorBlendMode,
-          placeholderFadeInDuration: placeholderFadeInDuration,
-        );
+         key: key,
+         imageUrl: imageUrl,
+         placeholderAssetImage: placeholderAssetImage,
+         placeholderBuilder: placeholderBuilder,
+         progressIndicatorBuilder: progressIndicatorBuilder,
+         errorBuilder: errorBuilder,
+         showError: showError,
+         showProgressIndicator: showProgressIndicator,
+         height: height,
+         width: width,
+         fit: fit,
+         borderRadius: borderRadius,
+         alignment: alignment,
+         memCacheWidth: memCacheWidth,
+         memCacheHeight: memCacheHeight,
+         cacheKey: cacheKey,
+         maxWidthDiskCache: maxWidthDiskCache,
+         maxHeightDiskCache: maxHeightDiskCache,
+         shimmerBaseColor: shimmerBaseColor,
+         shimmerHighlightColor: shimmerHighlightColor,
+         placeholderForegroundColor: placeholderForegroundColor,
+         httpHeaders: httpHeaders,
+         imageBuilder: imageBuilder,
+         fadeOutDuration: fadeOutDuration,
+         fadeOutCurve: fadeOutCurve,
+         fadeInDuration: fadeInDuration,
+         fadeInCurve: fadeInCurve,
+         repeat: repeat,
+         matchTextDirection: matchTextDirection,
+         useOldImageOnUrlChange: useOldImageOnUrlChange,
+         color: color,
+         progressBarColor: progressBarColor,
+         filterQuality: filterQuality,
+         colorBlendMode: colorBlendMode,
+         placeholderFadeInDuration: placeholderFadeInDuration,
+       );
 
-  const CoreImage.asset(
+  const StrataImage.asset(
     String imagePath, {
     Key? key,
     double? scale,
@@ -156,16 +156,16 @@ class CoreImage extends StatelessWidget {
     BoxFit fit = BoxFit.cover,
     Alignment alignment = Alignment.center,
   }) : this._(
-          key: key,
-          imagePath: imagePath,
-          scale: scale,
-          width: width,
-          height: height,
-          color: color,
-          colorBlendMode: colorBlendMode,
-          fit: fit,
-          alignment: alignment,
-        );
+         key: key,
+         imagePath: imagePath,
+         scale: scale,
+         width: width,
+         height: height,
+         color: color,
+         colorBlendMode: colorBlendMode,
+         fit: fit,
+         alignment: alignment,
+       );
 
   final String? imageUrl;
   final String? imagePath;
@@ -237,18 +237,18 @@ class CoreImage extends StatelessWidget {
           imageBuilder ??
           (borderRadius != null
               ? (context, imageProvider) => DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: borderRadius,
-                      image: DecorationImage(
-                        image: imageProvider,
-                        fit: fit,
-                        colorFilter: ColorFilter.mode(
-                          color ?? Colors.transparent,
-                          colorBlendMode ?? BlendMode.color,
-                        ),
+                  decoration: BoxDecoration(
+                    borderRadius: borderRadius,
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: fit,
+                      colorFilter: ColorFilter.mode(
+                        color ?? Colors.transparent,
+                        colorBlendMode ?? BlendMode.color,
                       ),
                     ),
-                  )
+                  ),
+                )
               : null),
       fadeOutDuration: fadeOutDuration,
       fadeOutCurve: fadeOutCurve,

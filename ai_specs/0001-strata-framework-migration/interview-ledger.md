@@ -157,7 +157,7 @@ Question: How should `strata_navigation` and `strata_ui` be isolated so that UI 
 
 Recommended Answer:
 - `strata_navigation` contains GoRouter configuration and `ScreenParams`.
-- `strata_ui` contains reusable UI widgets (`CorePaginationWidget`, `CoreImage`, theme/spacing).
+- `strata_ui` contains reusable UI widgets (`StrataPaginationWidget`, `StrataImage`).
 - `strata_ui` widgets receive navigation callbacks via closures (`onItemTap`) and do not import `go_router` or `flutter_bloc`.
 - Negative Requirement: Importing `strata_ui` MUST NOT compile `go_router` or `flutter_bloc`.
 

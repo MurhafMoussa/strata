@@ -38,29 +38,29 @@ StrataPaginationWidget<ProductItem, PaginationMetaModel>(
 );
 ```
 
-### 2. Custom Form Fields (`CoreTextField`, `CorePinCodeField`)
+### 2. Custom Form Fields (`StrataTextField`, `StrataPinCodeField`)
 Form field widgets powered by `typed_form_fields` 2.x providing type-safe reactive updates and customizable error indicators.
 
 ```dart
-CoreTextField(
+StrataTextField(
   name: 'email',
   labelText: 'Email Address',
   showRequiredStar: true,
   onChanged: (val) => print('Email: $val'),
 );
 
-CorePinCodeField(
+StrataPinCodeField(
   name: 'otp',
   length: 6,
   onCompleted: (pin) => verifyOtp(pin),
 );
 ```
 
-### 3. `CoreImage`
+### 3. `StrataImage`
 Universal image component handling asset, network, file, and SVG formats with shimmer placeholder loading and error fallbacks.
 
 ```dart
-CoreImage.network(
+StrataImage.network(
   'https://example.com/avatar.jpg',
   width: 80,
   height: 80,
@@ -68,12 +68,7 @@ CoreImage.network(
 );
 ```
 
-### 4. Layout & Theme Constants
-Centralized spacing, padding, radius, and animation managers:
-- `SpacingManager` (e.g. `SpacingManager.gap16`)
-- `PaddingManager` (e.g. `PaddingManager.paddingAll16`)
-- `BorderRadiusManager` (e.g. `BorderRadiusManager.radiusAll12`)
-- `SizesManager` and `AnimationParamsManager`
+### 4. Responsive Layout
 - Responsive layout helper `getValueForScreenType(context, mobile: 16, tablet: 24, desktop: 32)`
 
 ## Running Tests & Audits

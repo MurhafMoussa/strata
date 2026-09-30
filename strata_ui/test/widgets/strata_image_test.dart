@@ -3,12 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:strata_ui/strata_ui.dart';
 
 void main() {
-  group('CoreImage Widget Tests', () {
-    testWidgets('renders file image constructor without throwing error', (tester) async {
+  group('StrataImage Widget Tests', () {
+    testWidgets('renders file image constructor without throwing error', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CoreImage.file(
+            body: StrataImage.file(
               'non_existent_path.jpg',
               width: 100,
               height: 100,
@@ -17,14 +19,16 @@ void main() {
         ),
       );
 
-      expect(find.byType(CoreImage), findsOneWidget);
+      expect(find.byType(StrataImage), findsOneWidget);
     });
 
-    testWidgets('renders network image placeholder on initial load', (tester) async {
+    testWidgets('renders network image placeholder on initial load', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: CoreImage.network(
+            body: StrataImage.network(
               'https://example.com/image.jpg',
               width: 100,
               height: 100,
@@ -33,7 +37,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CoreImage), findsOneWidget);
+      expect(find.byType(StrataImage), findsOneWidget);
     });
   });
 }

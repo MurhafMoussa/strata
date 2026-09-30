@@ -76,6 +76,28 @@ abstract interface class StrataLoggerInterface {
 }
 ```
 
+### 6. `NetworkStatusInterface` & `ConnectionStatus`
+Abstract contract for network connectivity monitoring with cold-start `unknown` state support:
+
+```dart
+enum ConnectionStatus { connected, disconnected, unknown }
+
+abstract interface class NetworkStatusInterface {
+  Future<bool> get isConnected;
+  Stream<ConnectionStatus> get connectionStream;
+  void dispose();
+}
+```
+
+### 7. `PlatformServiceInterface` & `DeviceInfoEntity`
+Contract for hardware and operating system metadata resolution:
+
+```dart
+abstract interface class PlatformServiceInterface {
+  Future<DeviceInfoEntity> getDeviceInfo();
+}
+```
+
 ## Running Tests & Audits
 
 Run unit tests and dependency boundary checks inside the `strata_core` directory:
