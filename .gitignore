@@ -30,5 +30,12 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 build/
 
+# Coverage
+**/coverage/**
+!**/coverage/
+!**/coverage/lcov.info
+*.gcov.html
+*.vm.json
+
 # FVM Version Cache
 .fvm/

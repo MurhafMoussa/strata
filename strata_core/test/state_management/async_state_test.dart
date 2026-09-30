@@ -132,6 +132,16 @@ void main() {
           equals('fail'),
         );
       });
+
+      test('maybeWhen falls back to orElse for initial state', () {
+        const initial = AsyncState<int>.initial();
+
+        final result = initial.maybeWhen(
+          orElse: () => 'orElse',
+        );
+
+        expect(result, equals('orElse'));
+      });
     });
   });
 }

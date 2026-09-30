@@ -22,6 +22,7 @@ dependencies:
   talker_dio_logger: ^4.6.0
 
 dev_dependencies:
+  coverage: ^1.15.1
   lints: ^6.0.0
   mocktail: ^1.0.4
   test: ^1.24.0
