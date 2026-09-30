@@ -1,6 +1,6 @@
 name: strata_storage
 description: Secure persistence infrastructure adapters and database setup helpers for Strata framework.
-version: 0.1.0
+version: 2.0.1
 publish_to: none
 resolution: workspace
 

@@ -1,6 +1,6 @@
 name: strata_state
 description: BLoC state utilities and AsyncHandler lifecycle management for Strata framework.
-version: 0.1.0
+version: 2.0.1
 publish_to: none
 resolution: workspace
 

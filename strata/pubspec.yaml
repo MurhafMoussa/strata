@@ -1,6 +1,6 @@
 name: strata
 description: Strata framework orchestrator meta-package exporting all sub-packages and providing dependency injection initialization.
-version: 0.1.0
+version: 2.0.1
 publish_to: none
 resolution: workspace
 

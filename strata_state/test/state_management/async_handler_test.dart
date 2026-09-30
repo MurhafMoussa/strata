@@ -5,7 +5,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:strata_core/strata_core.dart';
 import 'package:strata_state/strata_state.dart';
 
-class MockStrataLogger extends Mock implements StrataLoggerInterface {}
+class MockCancelRequestManager extends Mock
+    implements CancelRequestManagerInterface {}
 
 class TestCompositeState {
   const TestCompositeState({
@@ -23,22 +24,27 @@ class TestCompositeState {
   }
 }
 
+class TestPaginationParams implements PaginationParamsInterface {
+  const TestPaginationParams(this.requestId);
+
+  @override
+  final String requestId;
+}
+
 void main() {
-  late MockStrataLogger mockLogger;
+  late MockCancelRequestManager mockCancelManager;
   late TestCompositeState currentState;
   late List<TestCompositeState> emittedStates;
   late bool isClosed;
-  late String? cancelledRequestId;
 
   late AsyncHandler<TestCompositeState, String> handler;
 
   setUp(() async {
     await GetIt.I.reset();
-    mockLogger = MockStrataLogger();
+    mockCancelManager = MockCancelRequestManager();
     currentState = const TestCompositeState(dataState: AsyncState.initial());
     emittedStates = [];
     isClosed = false;
-    cancelledRequestId = null;
 
     handler = AsyncHandler<TestCompositeState, String>(
       emit: (state) {
@@ -50,10 +56,8 @@ void main() {
       getAsyncState: (state) => state.dataState,
       setAsyncState: (state, asyncState) =>
           state.copyWith(dataState: asyncState),
-      logger: mockLogger,
-      onCancelRequest: (reqId) {
-        cancelledRequestId = reqId;
-      },
+      cancelRequestManager: mockCancelManager,
+      defaultRequestId: 'default_handler_id',
     );
   });
 
@@ -94,6 +98,21 @@ void main() {
       expect(successData, equals('Fetched Data: test_param'));
     });
 
+    test('execute convenience method executes parameterless async call', () async {
+      String? successData;
+
+      await handler.execute(
+        asyncCall: () async => right('Executed Data'),
+        onSuccess: (data) => successData = data,
+      );
+
+      expect(emittedStates.length, equals(2));
+      expect(emittedStates[0].dataState, isA<AsyncStateLoading<String>>());
+      expect(emittedStates[1].dataState, isA<AsyncStateSuccess<String>>());
+      expect(currentState.dataState.dataOrNull, equals('Executed Data'));
+      expect(successData, equals('Executed Data'));
+    });
+
     test('handleAsync handles failure, emits failure, and provides working retryFunction', () async {
       Failure? capturedFailure;
       const failure = ServerFailure(message: 'Server Error', statusCode: 500);
@@ -123,7 +142,7 @@ void main() {
       expect(emittedStates[1].dataState, isA<AsyncStateFailure<String>>());
     });
 
-    test('handleAsync(force: false) skips execution during isLoading state and logs diagnostic warning', () async {
+    test('handleAsync(force: false) skips execution during isLoading state', () async {
       currentState = const TestCompositeState(dataState: AsyncState.loading());
       var executed = false;
 
@@ -138,26 +157,45 @@ void main() {
 
       expect(executed, isFalse);
       expect(emittedStates, isEmpty);
-      verify(() => mockLogger.warning(any(that: contains('skipped because state is already loading')))).called(1);
     });
 
-    test('handleAsync(force: true) executes async call even during isLoading state', () async {
+    test('handleAsync(force: true) executes async call during isLoading state and cancels prior request', () async {
       currentState = const TestCompositeState(dataState: AsyncState.loading());
       var executed = false;
 
+      when(() => mockCancelManager.cancelRequest(any(), reason: any(named: 'reason')))
+          .thenReturn(null);
+
+      // Start an in-flight uncompleted request
+      handler.handleAsync<String>(
+        asyncCall: (params) async {
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          return right('slow data');
+        },
+        params: 'param',
+        requestId: 'in_flight_123',
+        force: true,
+      );
+
+      expect(handler.currentRequestId, equals('in_flight_123'));
+
+      // New forced call supersedes the in-flight one
       await handler.handleAsync<String>(
         asyncCall: (params) async {
           executed = true;
           return right('Force Loaded Data');
         },
         params: 'param',
+        requestId: 'new_req_456',
         force: true,
       );
 
       expect(executed, isTrue);
-      expect(emittedStates.length, equals(2));
       expect(currentState.dataState.dataOrNull, equals('Force Loaded Data'));
-      verifyNever(() => mockLogger.warning(any()));
+      verify(() => mockCancelManager.cancelRequest(
+            'in_flight_123',
+            reason: 'Superseded by new async call',
+          )).called(1);
     });
 
     test('handleAsync tracks requestId and cleans up after completion', () async {
@@ -173,7 +211,65 @@ void main() {
       expect(handler.currentRequestId, isNull);
     });
 
-    test('cancelRequest invokes onCancelRequest and clears currentRequestId', () async {
+    test('handleAsync defaults to defaultRequestId when no explicit requestId is passed', () async {
+      await handler.handleAsync<String>(
+        asyncCall: (params) async {
+          expect(handler.currentRequestId, equals('default_handler_id'));
+          return right('data');
+        },
+        params: 'param',
+      );
+
+      expect(handler.currentRequestId, isNull);
+    });
+
+    test('handleAsync extracts requestId from PaginationParamsInterface when requestId is null', () async {
+      final noDefaultHandler = AsyncHandler<TestCompositeState, String>(
+        emit: (s) => currentState = s,
+        getState: () => currentState,
+        isClosed: () => isClosed,
+        getAsyncState: (s) => s.dataState,
+        setAsyncState: (s, asyncState) => s.copyWith(dataState: asyncState),
+        cancelRequestManager: mockCancelManager,
+      );
+
+      const paginationParams = TestPaginationParams('page_req_999');
+
+      await noDefaultHandler.handleAsync<TestPaginationParams>(
+        asyncCall: (params) async {
+          expect(noDefaultHandler.currentRequestId, equals('page_req_999'));
+          return right('data');
+        },
+        params: paginationParams,
+      );
+
+      expect(noDefaultHandler.currentRequestId, isNull);
+    });
+
+    test('handleAsync allows execution when effective requestId is null', () async {
+      final noIdHandler = AsyncHandler<TestCompositeState, String>(
+        emit: (s) => currentState = s,
+        getState: () => currentState,
+        isClosed: () => isClosed,
+        getAsyncState: (s) => s.dataState,
+        setAsyncState: (s, asyncState) => s.copyWith(dataState: asyncState),
+      );
+
+      await noIdHandler.handleAsync<String>(
+        asyncCall: (params) async {
+          expect(noIdHandler.currentRequestId, isNull);
+          return right('data');
+        },
+        params: 'param',
+      );
+
+      expect(noIdHandler.currentRequestId, isNull);
+    });
+
+    test('cancelRequest invokes cancelRequestManager and clears currentRequestId', () async {
+      when(() => mockCancelManager.cancelRequest(any(), reason: any(named: 'reason')))
+          .thenReturn(null);
+
       handler.handleAsync<String>(
         asyncCall: (params) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -184,13 +280,24 @@ void main() {
       );
 
       expect(handler.currentRequestId, equals('request_456'));
-      handler.cancelRequest();
+      handler.cancelRequest(reason: 'User left screen');
 
-      expect(cancelledRequestId, equals('request_456'));
+      verify(() => mockCancelManager.cancelRequest(
+            'request_456',
+            reason: 'User left screen',
+          )).called(1);
       expect(handler.currentRequestId, isNull);
     });
 
-    test('dispose invokes cancelRequest', () {
+    test('cancelRequest does nothing if currentRequestId is null', () {
+      handler.cancelRequest();
+      verifyNever(() => mockCancelManager.cancelRequest(any(), reason: any(named: 'reason')));
+    });
+
+    test('dispose invokes cancelRequest with default disposed reason', () {
+      when(() => mockCancelManager.cancelRequest(any(), reason: any(named: 'reason')))
+          .thenReturn(null);
+
       handler.handleAsync<String>(
         asyncCall: (params) async {
           await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -201,7 +308,10 @@ void main() {
       );
 
       handler.dispose();
-      expect(cancelledRequestId, equals('request_789'));
+      verify(() => mockCancelManager.cancelRequest(
+            'request_789',
+            reason: 'AsyncHandler disposed',
+          )).called(1);
     });
 
     test('does not emit state if isClosed returns true when asyncCall resolves', () async {
@@ -217,10 +327,12 @@ void main() {
       expect(emittedStates[0].dataState, isA<AsyncStateLoading<String>>());
     });
 
-    test('falls back to GetIt logger if constructor logger is null', () async {
-      GetIt.I.registerSingleton<StrataLoggerInterface>(mockLogger);
+    test('falls back to GetIt CancelRequestManagerInterface if constructor manager is null', () async {
+      GetIt.I.registerSingleton<CancelRequestManagerInterface>(mockCancelManager);
+      when(() => mockCancelManager.cancelRequest(any(), reason: any(named: 'reason')))
+          .thenReturn(null);
 
-      final noLoggerHandler = AsyncHandler<TestCompositeState, String>(
+      final noManagerHandler = AsyncHandler<TestCompositeState, String>(
         emit: (s) => currentState = s,
         getState: () => currentState,
         isClosed: () => isClosed,
@@ -228,15 +340,42 @@ void main() {
         setAsyncState: (s, asyncState) => s.copyWith(dataState: asyncState),
       );
 
-      currentState = const TestCompositeState(dataState: AsyncState.loading());
-
-      await noLoggerHandler.handleAsync<String>(
-        asyncCall: (params) async => right('data'),
+      noManagerHandler.handleAsync<String>(
+        asyncCall: (params) async {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          return right('data');
+        },
         params: 'param',
-        force: false,
+        requestId: 'getit_req_1',
       );
 
-      verify(() => mockLogger.warning(any(that: contains('skipped because state is already loading')))).called(1);
+      noManagerHandler.cancelRequest();
+      verify(() => mockCancelManager.cancelRequest(
+            'getit_req_1',
+            reason: 'Request cancelled by AsyncHandler',
+          )).called(1);
+    });
+
+    test('handles cancelRequest gracefully when no manager is provided or registered', () {
+      final unmanagedHandler = AsyncHandler<TestCompositeState, String>(
+        emit: (s) => currentState = s,
+        getState: () => currentState,
+        isClosed: () => isClosed,
+        getAsyncState: (s) => s.dataState,
+        setAsyncState: (s, asyncState) => s.copyWith(dataState: asyncState),
+      );
+
+      unmanagedHandler.handleAsync<String>(
+        asyncCall: (params) async {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          return right('data');
+        },
+        params: 'param',
+        requestId: 'req_unmanaged',
+      );
+
+      expect(() => unmanagedHandler.cancelRequest(), returnsNormally);
+      expect(unmanagedHandler.currentRequestId, isNull);
     });
   });
 }

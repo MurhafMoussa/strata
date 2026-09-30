@@ -1,6 +1,6 @@
 name: strata_ui
 description: Reusable decoupled UI components and theme abstractions for the Strata framework.
-version: 0.1.0
+version: 2.0.1
 publish_to: 'none'
 resolution: workspace
 

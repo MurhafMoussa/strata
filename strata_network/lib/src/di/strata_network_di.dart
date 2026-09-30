@@ -44,6 +44,12 @@ extension StrataNetworkDiExtension on GetIt {
       );
     }
 
+    if (!isRegistered<CancelRequestManagerInterface>()) {
+      registerLazySingleton<CancelRequestManagerInterface>(
+        () => get<NetworkCancelRequestManagerInterface>(),
+      );
+    }
+
     if (!isRegistered<NetworkStatusInterface>()) {
       registerLazySingleton<NetworkStatusInterface>(
         () => InternetConnectionNetworkStatus(

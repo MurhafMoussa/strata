@@ -5,7 +5,7 @@ import 'disposable_async_handler_interface.dart';
 
 /// A delegate class that manages the complete lifecycle of a single async call.
 ///
-/// Encapsulates loading, success, failure, retry, and request tracking
+/// Encapsulates loading, success, failure, retry, and automated request cancellation
 /// for a specific [AsyncState] field within a composite state.
 class AsyncHandler<CompositeState, SuccessData>
     implements DisposableAsyncHandlerInterface {
@@ -16,8 +16,8 @@ class AsyncHandler<CompositeState, SuccessData>
     required this.isClosed,
     required this.getAsyncState,
     required this.setAsyncState,
-    this.logger,
-    this.onCancelRequest,
+    this.cancelRequestManager,
+    this.defaultRequestId,
   });
 
   /// Function to emit new composite states.
@@ -36,30 +36,50 @@ class AsyncHandler<CompositeState, SuccessData>
   final CompositeState Function(CompositeState, AsyncState<SuccessData>)
       setAsyncState;
 
-  /// Logger for diagnostic warnings.
-  final StrataLoggerInterface? logger;
+  /// Manager handling network request cancellation.
+  final CancelRequestManagerInterface? cancelRequestManager;
 
-  /// Cancellation callback invoked when a request is cancelled.
-  final void Function(String requestId)? onCancelRequest;
+  /// Optional default request identifier string used for cancellation tracking.
+  final String? defaultRequestId;
 
   String? _currentRequestId;
 
   /// Returns the active request ID if any request is currently tracked.
   String? get currentRequestId => _currentRequestId;
 
+  CancelRequestManagerInterface? _resolveCancelRequestManager() {
+    if (cancelRequestManager != null) return cancelRequestManager;
+    if (GetIt.I.isRegistered<CancelRequestManagerInterface>()) {
+      return GetIt.I<CancelRequestManagerInterface>();
+    }
+    return null;
+  }
+
+  String? _resolveRequestId<T>(String? requestId, T params) {
+    if (requestId != null) return requestId;
+    if (params is PaginationParamsInterface) {
+      return params.requestId;
+    }
+    return defaultRequestId;
+  }
+
   /// Cancels the ongoing async request if tracked.
-  void cancelRequest() {
-    if (_currentRequestId != null) {
-      onCancelRequest?.call(_currentRequestId!);
+  void cancelRequest({String? reason}) {
+    final id = _currentRequestId;
+    if (id != null) {
+      _resolveCancelRequestManager()?.cancelRequest(
+        id,
+        reason: reason ?? 'Request cancelled by AsyncHandler',
+      );
       _currentRequestId = null;
     }
   }
 
   /// Executes the async call and manages its full state lifecycle.
   ///
-  /// - When [force] is false (default) and current state is loading, logs a
-  ///   diagnostic warning via [StrataLoggerInterface] and skips execution.
-  /// - When [force] is true, executes the async call immediately even if loading.
+  /// - When [force] is false (default) and current state is loading, skips execution.
+  /// - When [force] is true, executes the async call immediately even if loading,
+  ///   automatically cancelling any previous in-flight request.
   Future<void> handleAsync<T>({
     required ResultFuture<SuccessData> Function(T params) asyncCall,
     required T params,
@@ -72,17 +92,19 @@ class AsyncHandler<CompositeState, SuccessData>
     final currentAsyncState = getAsyncState(currentState);
 
     if (currentAsyncState.isLoading && !force) {
-      _logWarning(
-        'AsyncHandler: handleAsync skipped because state is already loading. '
-        'Pass force: true to execute during loading state.',
-      );
       return;
     }
 
+    if (_currentRequestId != null) {
+      cancelRequest(reason: 'Superseded by new async call');
+    }
+
+    final effectiveRequestId = _resolveRequestId(requestId, params);
+
     emit(setAsyncState(currentState, AsyncState<SuccessData>.loading()));
 
-    if (requestId != null) {
-      _currentRequestId = requestId;
+    if (effectiveRequestId != null) {
+      _currentRequestId = effectiveRequestId;
     }
 
     try {
@@ -123,7 +145,7 @@ class AsyncHandler<CompositeState, SuccessData>
         );
       }
     } finally {
-      if (_currentRequestId == requestId) {
+      if (_currentRequestId == effectiveRequestId) {
         _currentRequestId = null;
       }
     }
@@ -147,16 +169,25 @@ class AsyncHandler<CompositeState, SuccessData>
         force: force,
       );
 
-  void _logWarning(String message) {
-    if (logger != null) {
-      logger!.warning(message);
-    } else if (GetIt.I.isRegistered<StrataLoggerInterface>()) {
-      GetIt.I<StrataLoggerInterface>().warning(message);
-    }
-  }
+  /// Convenience executor for parameterless calls or closures: `execute(() => useCase(params))`
+  Future<void> execute({
+    required ResultFuture<SuccessData> Function() asyncCall,
+    void Function(SuccessData data)? onSuccess,
+    void Function(Failure failure)? onFailure,
+    String? requestId,
+    bool force = false,
+  }) =>
+      handleAsync<void>(
+        asyncCall: (_) => asyncCall(),
+        params: null,
+        onSuccess: onSuccess,
+        onFailure: onFailure,
+        requestId: requestId,
+        force: force,
+      );
 
   @override
   void dispose() {
-    cancelRequest();
+    cancelRequest(reason: 'AsyncHandler disposed');
   }
 }

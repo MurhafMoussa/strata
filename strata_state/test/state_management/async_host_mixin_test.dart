@@ -1,8 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:strata_core/strata_core.dart';
 import 'package:strata_state/strata_state.dart';
+
+class MockCancelRequestManager extends Mock
+    implements CancelRequestManagerInterface {}
 
 class TestCubitState {
   const TestCubitState({
@@ -22,13 +26,16 @@ class TestCubitState {
 
 class TestCubit extends Cubit<TestCubitState>
     with AsyncHostMixin<TestCubitState> {
-  TestCubit({void Function(String)? onCancelRequest})
-      : super(const TestCubitState(userState: AsyncState.initial())) {
+  TestCubit({
+    CancelRequestManagerInterface? cancelRequestManager,
+    String? defaultRequestId,
+  }) : super(const TestCubitState(userState: AsyncState.initial())) {
     userHandler = createAsyncHandler(
       getAsyncState: (state) => state.userState,
       setAsyncState: (state, asyncState) =>
           state.copyWith(userState: asyncState),
-      onCancelRequest: onCancelRequest,
+      cancelRequestManager: cancelRequestManager,
+      defaultRequestId: defaultRequestId,
     );
   }
 
@@ -49,6 +56,12 @@ class TestCubit extends Cubit<TestCubitState>
 }
 
 void main() {
+  late MockCancelRequestManager mockCancelManager;
+
+  setUp(() {
+    mockCancelManager = MockCancelRequestManager();
+  });
+
   group('AsyncHostMixin Unit Tests', () {
     test(
       'creates handler and executes handleAsync updating cubit state',
@@ -66,25 +79,32 @@ void main() {
       },
     );
 
-    test('closing cubit automatically disposes registered handlers', () async {
-      String? cancelledId;
-      final cubit = TestCubit(onCancelRequest: (id) => cancelledId = id);
+    test('closing cubit automatically disposes registered handlers and cancels active requests', () async {
+      when(() => mockCancelManager.cancelRequest(any(), reason: any(named: 'reason')))
+          .thenReturn(null);
 
-      // Start an uncompleted async call with requestId
+      final cubit = TestCubit(
+        cancelRequestManager: mockCancelManager,
+        defaultRequestId: 'cubit_default_id',
+      );
+
+      // Start an uncompleted async call
       cubit.userHandler.handleAsync<String>(
         asyncCall: (params) async {
           await Future<void>.delayed(const Duration(milliseconds: 100));
           return right('User');
         },
         params: '456',
-        requestId: 'req_456',
       );
 
-      expect(cubit.userHandler.currentRequestId, equals('req_456'));
+      expect(cubit.userHandler.currentRequestId, equals('cubit_default_id'));
 
       await cubit.close();
 
-      expect(cancelledId, equals('req_456'));
+      verify(() => mockCancelManager.cancelRequest(
+            'cubit_default_id',
+            reason: 'AsyncHandler disposed',
+          )).called(1);
       expect(cubit.userHandler.currentRequestId, isNull);
     });
   });

@@ -42,6 +42,7 @@ void main() {
 
         expect(getIt.isRegistered<NetworkConfigEntity>(), isTrue);
         expect(getIt.isRegistered<NetworkCancelRequestManagerInterface>(), isTrue);
+        expect(getIt.isRegistered<CancelRequestManagerInterface>(), isTrue);
         expect(getIt.isRegistered<NetworkStatusInterface>(), isTrue);
         expect(getIt.isRegistered<TokenManagerInterface>(), isTrue);
         expect(getIt.isRegistered<NetworkExceptionMapperInterface>(), isTrue);
@@ -51,6 +52,10 @@ void main() {
         expect(getIt<ApiHandlerInterface>(), isA<DioApiHandler>());
         expect(
           getIt<NetworkCancelRequestManagerInterface>(),
+          isA<DefaultCancelRequestManager>(),
+        );
+        expect(
+          getIt<CancelRequestManagerInterface>(),
           isA<DefaultCancelRequestManager>(),
         );
         expect(

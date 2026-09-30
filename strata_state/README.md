@@ -4,7 +4,7 @@ BLoC state utilities and `AsyncHandler` lifecycle management for the Strata fram
 
 ## Overview
 
-`strata_state` provides BLoC/Cubit state handling delegates and UI builder widgets for managing `AsyncState<T>` transitions. It includes `AsyncHostMixin` for managing multiple async lifecycles inside a single Cubit/BLoC state, `DisposableAsyncHandlerInterface`, `AsyncHandler` with force re-execution override and diagnostic warnings for skipped loading calls, and `AsyncBuilder` for UI rendering.
+`strata_state` provides BLoC/Cubit state handling delegates and UI builder widgets for managing `AsyncState<T>` transitions. It includes `AsyncHostMixin` for managing multiple async lifecycles inside a single Cubit/BLoC state, `DisposableAsyncHandlerInterface`, `AsyncHandler` with force re-execution override and automated cancellation via `CancelRequestManagerInterface`, and `AsyncBuilder` for UI rendering.
 
 ## Architectural Rules & Boundaries
 
@@ -20,18 +20,23 @@ A delegate class managed by `AsyncHostMixin` that encapsulates loading, success,
 ```dart
 import 'package:strata_state/strata_state.dart';
 
-// Force execution during loading state
+// Force execution during loading state (automatically cancels any prior in-flight request)
 await asyncHandler.handleAsync(
   asyncCall: fetchUserDataUseCase,
   params: userId,
   force: true,
 );
 
-// Default behavior (force: false) logs a diagnostic warning via StrataLoggerInterface if state is already loading
+// Default behavior (force: false) skips execution if state is already loading
 await asyncHandler.handleAsync(
   asyncCall: fetchUserDataUseCase,
   params: userId,
   force: false,
+);
+
+// Convenience execution for parameterless calls or closures
+await asyncHandler.execute(
+  asyncCall: () => fetchUserDataUseCase(userId),
 );
 ```
 
@@ -42,6 +47,7 @@ Mixin for `BlocBase` (Cubit/BLoC) that automatically creates and disposes `Async
 class UserCubit extends Cubit<UserState> with AsyncHostMixin<UserState> {
   UserCubit() : super(UserState.initial()) {
     _profileHandler = createAsyncHandler(
+      defaultRequestId: 'user_profile',
       getAsyncState: (state) => state.profileState,
       setAsyncState: (state, asyncState) => state.copyWith(profileState: asyncState),
     );

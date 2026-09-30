@@ -16,8 +16,8 @@ mixin AsyncHostMixin<CompositeState> on BlocBase<CompositeState> {
       CompositeState,
       AsyncState<SuccessData>,
     ) setAsyncState,
-    StrataLoggerInterface? logger,
-    void Function(String requestId)? onCancelRequest,
+    CancelRequestManagerInterface? cancelRequestManager,
+    String? defaultRequestId,
   }) {
     final handler = AsyncHandler<CompositeState, SuccessData>(
       emit: emit,
@@ -25,8 +25,8 @@ mixin AsyncHostMixin<CompositeState> on BlocBase<CompositeState> {
       isClosed: () => isClosed,
       getAsyncState: getAsyncState,
       setAsyncState: setAsyncState,
-      logger: logger,
-      onCancelRequest: onCancelRequest,
+      cancelRequestManager: cancelRequestManager,
+      defaultRequestId: defaultRequestId,
     );
 
     _asyncHandlers.add(handler);

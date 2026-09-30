@@ -37,7 +37,7 @@ The pure functional union state representation in `strata_core` representing `in
 _Avoid_: CoreState, BlocApiState, ApiState
 
 **AsyncHandler**:
-The composite delegate in `strata_state` managing loading/success/failure/retry lifecycles for an `AsyncState` field within a BLoC/Cubit state.
+The composite delegate in `strata_state` managing loading/success/failure/retry lifecycles and automated request cancellation for an `AsyncState` field within a BLoC/Cubit state.
 _Avoid_: ApiStateController, ApiStateHandler, AsyncStateController
 
 **DisposableAsyncHandlerInterface**:
