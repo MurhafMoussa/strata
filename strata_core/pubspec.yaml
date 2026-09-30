@@ -1,0 +1,21 @@
+name: strata_core
+description: Core domain entities, failures, logger contracts, and storage interfaces for Strata framework.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ">=3.13.1 <4.0.0"
+
+dependencies:
+  equatable: ^3.0.0
+  fpdart: ^1.1.0
+  get_it: ^9.0.5
+  intl: ^0.20.2
+  path: ^1.9.0
+  talker: ^4.6.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.24.0
+  coverage: ^1.7.2

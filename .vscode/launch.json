@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "coore",
+            "name": "strata",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "coore (profile mode)",
+            "name": "strata (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "coore (release mode)",
+            "name": "strata (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

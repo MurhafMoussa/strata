@@ -1,719 +1,433 @@
-# 🎯 Coore
+# 🎯 Strata Framework
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.10+-blue.svg)](https://flutter.dev/)
-[![Dart](https://img.shields.io/badge/Dart-3.10+-blue.svg)](https://dart.dev/)
+[![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue.svg)](https://flutter.dev/)
+[![Dart](https://img.shields.io/badge/Dart-3.0+-blue.svg)](https://dart.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-**Enterprise-grade Flutter infrastructure package** built on Clean Architecture principles with functional error handling and centralized configuration.
+**Strata** is an enterprise modular Flutter & Dart framework structured as a Melos monorepo. It is decomposed into 6 focused sub-packages designed for maximum flexibility, zero unnecessary framework lock-in, functional error handling via `fpdart`, and robust async dependency injection using `GetIt`.
 
 ---
 
-## ✨ Features
+## 📦 Strata Monorepo Packages
 
-- 🏗️ **Clean Architecture** - Strict separation of concerns with feature-first organization
-- 🔄 **Functional Error Handling** - Type-safe error handling with `fpdart`'s `Either` monad
-- 🌐 **Networking** - Dio-based API handler with automatic token refresh and request cancellation
-- 📊 **State Management** - Simplified BLoC/Cubit patterns with automatic API state handling
-- 🎨 **UI Components** - Production-ready widgets for pagination, forms, images, and theming
-- 🧭 **Navigation** - GoRouter integration with type-safe route generation support
-- 💾 **Storage** - Local (Hive) and secure (FlutterSecureStorage) database abstractions
-- ⚙️ **Centralized Configuration** - Single entry point for app-wide setup
-
----
-
-## 📦 Installation
-
-Add `coore` to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  coore: ^1.0.0
-```
-
-Then run:
-
-```bash
-flutter pub get
-```
+| Package | Purpose | Primary Dependencies |
+| :--- | :--- | :--- |
+| **`strata_core`** | Domain entities, failures, logger contracts (`StrataLoggerInterface`), `SensitiveStorageInterface`, `AsyncState<T>`, and `UseCase` contracts. | Pure Dart (`equatable`, `fpdart`, `get_it`) |
+| **`strata_network`** | Dio HTTP client wrapper (`ApiHandlerInterface`), token lifecycle management (`TokenManagerInterface`), and request cancellation (`CancelRequestManagerInterface`). | `strata_core`, `dio`, `mutex`, `internet_connection_checker_plus` |
+| **`strata_storage`** | Secure persistence adapters (`FlutterSecureSensitiveStorage`), encryption key rotation, and storage directory helpers. | `strata_core`, `flutter_secure_storage`, `path_provider` |
+| **`strata_state`** | BLoC & state management, `AsyncHostMixin`, `AsyncHandler`, `AsyncBuilder`, persistent Cubits (`ThemeCubit`, `LocalizationCubit`), `PlatformCubit`, and Value Selectors. | `strata_core`, `flutter_bloc`, `hydrated_bloc` |
+| **`strata_ui`** | Decoupled UI components (`StrataPaginationWidget`, form fields, `StrataImage`), and reactive wrappers. | `strata_core`, `flutter`, `skeletonizer` |
+| **`strata`** | Meta-package orchestrating `StrataInitializer` and exporting all sub-packages for single-line app setup. | All Strata sub-packages |
 
 ---
 
 ## 🚀 Quick Start
 
-### Critical Setup: Initialize Core Dependencies
+### 1. Add Dependency
 
-**Coore requires initialization before `runApp()`**. This single call configures networking, theming, localization, and environment settings.
+Add the orchestrator meta-package `strata` (or specific sub-packages) to your application's `pubspec.yaml`:
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  strata:
+    path: path/to/strata # or pub version when published
+```
+
+### 2. Framework Initialization
+
+Initialize all Strata sub-packages in `main.dart` using `StrataInitializer.initialize()`:
 
 ```dart
-import 'package:coore/coore.dart';
 import 'package:flutter/material.dart';
+import 'package:strata/strata.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize all core dependencies
-  await CoreConfig.initializeCoreDependencies(
-    CoreConfigEntity(
-      currentEnvironment: CoreEnvironment.development,
-      networkConfigEntity: NetworkConfigEntity(
-        baseUrl: 'https://api.example.com',
-        connectTimeout: const Duration(seconds: 30),
-        sendTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        authInterceptorType: AuthInterceptorType.tokenBased,
-      ),
-      localizationConfigEntity: LocalizationConfigEntity(
-        defaultLocale: const Locale('en'),
-        supportedLocales: const [Locale('en'), Locale('ar')],
-        localizationsDelegates: [
-          // Your localization delegates
-        ],
-      ),
-      themeConfigEntity: ThemeConfigEntity(
-        lightTheme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
-      ),
+
+  final strataConfig = StrataConfigEntity(
+    networkConfig: const NetworkConfigEntity(
+      baseUrl: 'https://api.example.com',
+      excludedPaths: ['/login', '/register'],
+      refreshTokenApiEndpoint: '/auth/refresh',
+      accessTokenKey: 'access_token',
+      refreshTokenKey: 'refresh_token',
+      enableRetry: true,
+      maxRetryAttempts: 3,
+      retryInterval: Duration(seconds: 2),
     ),
   );
-  
-  runApp(MyApp());
+
+  // Single-line framework setup (registers GetIt singletons and awaits getIt.allReady())
+  await StrataInitializer.initialize(strataConfig);
+
+  runApp(const MyApp());
 }
 ```
 
-**After project setup** (e.g., after initializing Hive boxes), initialize navigation:
+### 3. Install Strata Agent Skills (Optional)
 
-```dart
-await CoreConfig.initializeCoreDependenciesAfterProjectSetup(
-  CoreConfigAfterProjectSetupEntity(
-    navigationConfigEntity: NavigationConfigEntity(
-      routes: $appRoutes, // Generated by go_router_builder
-      redirect: (context, state) {
-        // Your redirect logic
-        return null;
-      },
-    ),
-  ),
-);
+Strata provides an official AI agent skill suite for OpenCode and Claude Code to scaffold features, configure pagination, and manage authentication lifecycles with ease:
+
+```bash
+# Installs skills to .opencode/skills/
+dart run strata:install_skills
+
+# Options:
+#   --claude     Also install to .claude/skills/
+#   --global     Install globally to ~/.config/opencode/skills/
+#   --force      Overwrite existing skill files
 ```
+
+Available skills in the suite:
+- `@strata`: Top-level router and architecture guide
+- `@strata-bootstrap`: Framework bootstrap and `main.dart` setup
+- `@strata-auth`: Token management, auto-refresh interceptors, and `AuthBloc`
+- `@strata-feature`: Feature-First Clean Architecture scaffolding with companion tests
+- `@strata-pagination`: Pull-to-refresh infinite scrolling with `StrataPaginationBloc` and `StrataPaginationWidget`
 
 ---
 
-## 📚 Module Guide
+## 📖 Module Usage Guide
 
-### 🌐 Networking
+### 🌐 1. Networking (`strata_network`)
 
-Coore provides a type-safe API handler that wraps all network calls in `Either<Failure, T>`, enabling functional error handling with granular failure types.
+Strata provides a type-safe API handler (`ApiHandlerInterface`) wrapping all network requests in `Either<Failure, T>`, enabling functional error handling.
 
-#### Making API Requests
+#### Making Requests (GET, POST, PUT, DELETE)
 
 ```dart
-import 'package:coore/coore.dart';
 import 'package:get_it/get_it.dart';
+import 'package:strata/strata.dart';
 
-final apiHandler = getIt<ApiHandlerInterface>();
+final apiHandler = GetIt.I<ApiHandlerInterface>();
 
-// GET request with cancellation support
+// GET request returning Either<Failure, List<User>>
 final result = await apiHandler.get<List<User>>(
   '/users',
   parser: (json) => (json['data'] as List)
       .map((item) => User.fromJson(item as Map<String, dynamic>))
       .toList(),
   queryParameters: {'page': 1, 'limit': 20},
-  shouldCache: true,
   isAuthorized: true,
-  requestId: 'fetch-users', // Optional: for cancellation
+  requestId: 'fetch-users', // Optional ID for request cancellation
 );
 
-// Handle the Either result with type-safe error handling
+// Process functional result
 result.fold(
-  (failure) {
-    // Handle specific failure types
-    if (failure is ConnectionFailure) {
-      // Show offline message
-      print('No internet: ${failure.message}');
-    } else if (failure is ServerFailure) {
-      // Show server error with status code
-      print('Server error ${failure.statusCode}: ${failure.message}');
-    } else if (failure is AuthFailure) {
-      // Navigate to login
-      print('Authentication required');
-    } else {
-      print('Error: ${failure.message}');
-    }
-  },
-  (users) {
-    // Handle success
-    print('Fetched ${users.length} users');
-  },
+  (failure) => print('Error [${failure.code}]: ${failure.message}'),
+  (users) => print('Fetched ${users.length} users'),
 );
 ```
 
 #### Request Cancellation
 
+Track and cancel pending network requests using `CancelRequestManagerInterface`:
+
 ```dart
-import 'package:coore/coore.dart';
+final cancelManager = GetIt.I<CancelRequestManagerInterface>();
 
-final cancelManager = getIt<CancelRequestManager>();
+// Trigger network call with a requestId
+apiHandler.get('/heavy-report', requestId: 'report-job', parser: (j) => j);
 
-// Start a request with a requestId
-apiHandler.get('/users', requestId: 'fetch-users', ...);
-
-// Cancel it later
-cancelManager.cancelRequest('fetch-users');
+// Cancel specific request by ID when user navigates away
+cancelManager.cancelRequest('report-job', reason: 'User navigated away');
 ```
 
 #### Per-Request Retry Configuration
 
-Coore supports both global retry settings (configured in `NetworkConfigEntity`) and per-request retry configuration. Per-request settings take precedence over global settings, allowing fine-grained control over retry behavior.
+Override global retry behavior on specific API endpoints:
 
 ```dart
-// Disable retry for a specific request
-final result = await apiHandler.get<List<User>>(
-  '/users',
-  parser: (json) => [...],
-  enableRetry: false, // This request won't retry even if global retry is enabled
-);
-
-// Custom retry settings for a specific request
+// Custom retry configuration for critical request
 final result = await apiHandler.post<Map<String, dynamic>>(
-  '/data',
+  '/transactions',
   parser: (json) => json,
-  body: {'key': 'value'},
+  body: {'amount': 100},
   enableRetry: true,
-  maxRetryAttempts: 2, // Only 2 retries instead of global default
-  retryDelay: Duration(seconds: 5), // 5 second delay instead of global default
+  maxRetryAttempts: 5,
+  retryDelay: const Duration(seconds: 3),
 );
 
-// Use global retry settings (default behavior)
-final result = await apiHandler.get<User>(
-  '/users/123',
-  parser: User.fromJson,
-  // enableRetry defaults to true, uses global maxRetryAttempts and retryDelay
+// Disable retry for non-idempotent or one-off operations
+final uploadResult = await apiHandler.post<Unit>(
+  '/upload',
+  parser: (_) => unit,
+  enableRetry: false,
 );
 ```
 
-**Retry Parameters:**
-- `enableRetry` (default: `true`) - Whether to enable retry for this request. If `false`, the request won't retry even if global retry is enabled.
-- `maxRetryAttempts` (default: `null`) - Maximum number of retry attempts. If `null`, uses the global setting from `NetworkConfigEntity`.
-- `retryDelay` (default: `null`) - Delay between retry attempts. If `null`, uses the global `retryInterval` from `NetworkConfigEntity`.
+#### Network Status Monitoring
 
-**When Requests Are Retried:**
-- Connection timeout, send timeout, or receive timeout
-- Network connectivity issues (`SocketException`)
-- Server errors (status codes configured in `NetworkConfigEntity.retryOnStatusCodes`, typically 5xx)
-
-#### POST Request with Form Data
+Check network connectivity or listen to live changes:
 
 ```dart
-final formData = MultipartFormDataAdapter({
-  'name': 'John Doe',
-  'email': 'john@example.com',
-  'avatar': File('/path/to/avatar.jpg'),
+final networkStatus = GetIt.I<NetworkStatusInterface>();
+
+// Check current status
+bool online = await networkStatus.isConnected;
+
+// Listen to network status stream
+networkStatus.connectionStream.listen((status) {
+  if (status == ConnectionStatus.disconnected) {
+    print('Network connection lost');
+  }
 });
+```
 
-final result = await apiHandler.post<Map<String, dynamic>>(
-  '/users',
-  parser: (json) => json,
-  formData: formData,
-  onSendProgress: (progress) => print('Upload: ${(progress * 100).toInt()}%'),
-  isAuthorized: true,
+---
+
+### 🔑 2. Secure Storage (`strata_storage`)
+
+Strata provides encrypted key-value persistence through `SensitiveStorageInterface` implemented by `FlutterSecureSensitiveStorage`.
+
+> **Database Neutrality Notice:** Strata does NOT impose generic key-value database wrappers (`NoSqlDatabaseInterface`). Feature repositories interact directly with native database engines (Drift, Isar, Hive) while using `SensitiveStorageInterface` for secure credentials and encryption keys.
+
+#### Storing & Retrieving Credentials
+
+```dart
+final secureStorage = GetIt.I<SensitiveStorageInterface>();
+
+// Save sensitive item
+final saveResult = await secureStorage.save('api_token', 'secret_jwt_token');
+
+// Read sensitive item
+final readResult = await secureStorage.read('api_token');
+readResult.fold(
+  (failure) => print('Storage read error: ${failure.message}'),
+  (token) => print('Read token: $token'),
+);
+
+// Delete item or clear all
+await secureStorage.delete('api_token');
+await secureStorage.deleteAll();
+```
+
+#### Storage Encryption Key Rotation & Helpers
+
+```dart
+// Generate or retrieve encryption keys for database engines (e.g. Hive/Drift)
+final keyBytes = await StorageEncryptionKeyHelper.getOrCreateEncryptionKey(
+  storage: secureStorage,
+  keyName: 'db_encryption_key',
+);
+
+// Resolve application storage directory for database engines
+final dbDir = await StorageDirectoryHelper.getDatabaseDirectory(
+  subDirectory: 'user_data',
 );
 ```
 
 ---
 
-### ⚠️ Error Handling & Failures
+### 🔄 3. State Management (`strata_state`)
 
-Coore provides a comprehensive failure hierarchy for enterprise-grade error handling. All API calls return `Either<Failure, T>`, where `Failure` is a base class with specific subtypes for different error scenarios.
+Strata decouples pure `AsyncState<T>` from BLoC, allowing lightweight state modeling with `AsyncHostMixin`, `AsyncHandler`, and `AsyncBuilder`.
 
-#### Failure Types
-
-```dart
-// Base Failure class with observability support
-abstract class Failure extends Equatable implements Exception {
-  final String message;              // User-friendly message
-  final String? code;                 // Analytics code (e.g., 'AUTH_001')
-  final StackTrace? stackTrace;      // For Crashlytics/Sentry
-  final Object? originalException;   // Original exception for debugging
-}
-```
-
-**Available Failure Types:**
-
-- **`ConnectionFailure`** - Network-level issues (timeouts, DNS, SSL, no internet)
-  - `code: 'TIMEOUT'` - Request timeout
-  - `code: 'NO_INTERNET'` - No internet connection
-  - `code: 'SSL_ERR'` - SSL certificate error
-
-- **`ServerFailure`** - HTTP 4xx/5xx errors from backend
-  - `statusCode` - HTTP status code (e.g., 404, 500)
-  - `requestId` - Backend trace ID for log correlation
-
-- **`AuthFailure`** - Authentication issues (401)
-  - Triggers auto-logout or token refresh flows
-
-- **`UnauthorizedFailure`** - Authorization issues (403)
-  - User is logged in but lacks required permissions
-
-- **`ValidationFailure`** - Data validation errors (422)
-  - `errors: Map<String, String>` - Field-specific errors
-  - `firstError` - Helper to get first error message
-  - `getErrorFor(String fieldName)` - Get error for specific field
-
-- **`BusinessFailure`** - Business rule violations (200 OK but business error)
-  - Example: "Insufficient funds", "Duplicate transaction"
-
-- **`FormatFailure`** - Data parsing issues (malformed JSON, type mismatch)
-
-- **`CacheFailure`** - Local storage issues (database, secure storage, filesystem)
-
-- **`OperationCancelledFailure`** - User cancelled operation
-
-- **`UnknownFailure`** - Unexpected errors (unhandled exceptions)
-
-#### Error Handling Example
+#### Pure `AsyncState<T>` Representation
 
 ```dart
-final result = await apiHandler.get<User>('/users/123', ...);
+// AsyncState<T> variants: Initial, Loading, Success, Failure
+const state = AsyncState<String>.loading();
 
-result.fold(
-  (failure) {
-    // Pattern matching on failure types
-    switch (failure.runtimeType) {
-      case ConnectionFailure:
-        // Show offline UI
-        showSnackBar('No internet connection');
-        break;
-        
-      case AuthFailure:
-        // Navigate to login
-        router.push('/login');
-        break;
-        
-      case ValidationFailure:
-        final validationFailure = failure as ValidationFailure;
-        // Show field-specific errors
-        if (validationFailure.errors.containsKey('email')) {
-          showFieldError('email', validationFailure.getErrorFor('email'));
-        }
-        break;
-        
-      case ServerFailure:
-        final serverFailure = failure as ServerFailure;
-        // Log with request ID for backend correlation
-        logger.error(
-          'Server error ${serverFailure.statusCode}',
-          error: serverFailure,
-          stackTrace: serverFailure.stackTrace,
-          extra: {'requestId': serverFailure.requestId},
-        );
-        showSnackBar(serverFailure.message);
-        break;
-        
-      default:
-        // Handle unknown errors
-        showSnackBar(failure.message);
-    }
-  },
-  (user) {
-    // Success handling
-    displayUser(user);
-  },
+state.when(
+  initial: () => print('Initial'),
+  loading: () => print('Loading...'),
+  success: (data) => print('Data: $data'),
+  failure: (failure, retry) => print('Error: ${failure.message}'),
 );
 ```
 
-#### Exception Mapping
+#### Building Cubits with `AsyncHostMixin`
 
-Coore automatically maps Dio exceptions to appropriate failure types:
-
-- `DioExceptionType.connectionTimeout` → `ConnectionFailure(code: 'TIMEOUT')`
-- `DioExceptionType.connectionError` → `ConnectionFailure(code: 'NO_INTERNET')`
-- `DioExceptionType.badResponse` (401) → `AuthFailure`
-- `DioExceptionType.badResponse` (403) → `UnauthorizedFailure`
-- `DioExceptionType.badResponse` (422) → `ValidationFailure`
-- `DioExceptionType.badResponse` (4xx/5xx) → `ServerFailure`
-- Generic `Exception` → `UnknownFailure`
-
----
-
-### 🔄 State Management
-
-Coore simplifies API state management with `ApiStateHostMixin` and `ApiStateHandler`, eliminating boilerplate in your Cubits.
-
-#### ApiState
-
-`ApiState<T>` is a sealed class with four variants:
+`AsyncHostMixin` provides streamlined async handling with state safety and automatic Cubit disposal cleanup:
 
 ```dart
-@freezed
-sealed class ApiState<T> with _$ApiState<T> {
-  const factory ApiState.initial() = Initial;
-  const factory ApiState.loading() = Loading;
-  const factory ApiState.succeeded(T successValue) = Succeeded;
-  const factory ApiState.failed(Failure failure, {VoidCallback? retryFunction}) = Failed;
-}
-```
-
-#### Using ApiStateHostMixin
-
-```dart
-import 'package:coore/coore.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'user_state.freezed.dart';
-
 @freezed
 class UserState with _$UserState {
   const factory UserState({
-    @Default(ApiState.initial()) ApiState<List<User>> usersState,
-    @Default(ApiState.initial()) ApiState<User?> currentUserState,
+    @Default(AsyncState.initial()) AsyncState<List<User>> usersState,
   }) = _UserState;
 }
 
-class UserCubit extends Cubit<UserState> with ApiStateHostMixin<UserState> {
-  final UserRepository _repository;
-  
-  // Create handlers for each API state
-  late final _usersHandler = createApiHandler<List<User>>(
-    getApiState: (state) => state.usersState,
-    setApiState: (state, apiState) => state.copyWith(usersState: apiState),
+class UserCubit extends Cubit<UserState> with AsyncHostMixin<UserState> {
+  final UserRepositoryInterface _repository;
+
+  late final _usersHandler = createAsyncHandler<List<User>>(
+    getAsyncState: (state) => state.usersState,
+    setAsyncState: (state, asyncState) => state.copyWith(usersState: asyncState),
   );
-  
-  late final _currentUserHandler = createApiHandler<User?>(
-    getApiState: (state) => state.currentUserState,
-    setApiState: (state, apiState) => state.copyWith(currentUserState: apiState),
-  );
-  
+
   UserCubit(this._repository) : super(const UserState());
-  
-  Future<void> loadUsers() async {
-    await _usersHandler.handleApiCall(
-      apiCall: _repository.getUsers,
-      params: PagePaginationParams(page: 1, limit: 20),
-      onSuccess: (users) {
-        print('Loaded ${users.length} users');
-      },
-      onFailure: (failure) {
-        print('Failed: ${failure.message}');
-      },
-    );
-  }
-  
-  Future<void> loadCurrentUser(String userId) async {
-    await _currentUserHandler.handleApiCall(
-      apiCall: (params) => _repository.getUserById(userId),
-      params: NoParams(),
+
+  Future<void> fetchUsers({bool force = false}) async {
+    await _usersHandler.handleAsync(
+      asyncCall: (params) => _repository.getUsers(params),
+      params: const PagePaginationParams(page: 1, limit: 20),
+      force: force, // Force re-execution even if currently loading
     );
   }
 }
 ```
 
-**Benefits:**
-- ✅ Automatic loading/success/failure state management
-- ✅ Built-in request cancellation with static request IDs
-- ✅ Per-request retry configuration (disable or customize retry per request)
-- ✅ Automatic cleanup on Cubit disposal
+#### Rendering State in UI with `AsyncBuilder`
+
+```dart
+AsyncBuilder<UserState, List<User>>(
+  bloc: context.read<UserCubit>(),
+  getAsyncState: (state) => state.usersState,
+  loadingBuilder: (context) => const CircularProgressIndicator(),
+  successBuilder: (context, users) => ListView.builder(
+    itemCount: users.length,
+    itemBuilder: (context, index) => Text(users[index].name),
+  ),
+  errorBuilder: (context, failure, onRetry) => ElevatedButton(
+    onPressed: onRetry,
+    child: Text('Retry (${failure.message})'),
+  ),
+)
+```
+
+#### Hydrated Cubits (`ThemeCubit`, `LocalizationCubit`)
+
+Strata includes pre-built persisted Cubits using `HydratedBloc` for user preferences:
+
+```dart
+// Theme Management
+context.read<ThemeCubit>().setThemeMode(ThemeMode.dark);
+
+// Locale / Language Management
+context.read<LocalizationCubit>().changeLanguage(const Locale('ar'));
+```
+
+#### Platform & Device Information (`PlatformCubit`)
+
+`PlatformCubit` provides comprehensive device, OS, and app metadata. Unlike `ThemeCubit` and `LocalizationCubit`, it is a standard `Cubit` (not hydrated) to prevent stale device identity or app version after OS updates or device backups.
+
+**Standard Usage (async fetch on construction):**
+```dart
+final platformCubit = context.read<PlatformCubit>();
+final deviceInfo = platformCubit.deviceInfo;
+print('Device: ${deviceInfo.model} (${deviceInfo.manufacturer})');
+print('OS: ${deviceInfo.osVersion}');
+print('App Version: ${platformCubit.appVersion} (${platformCubit.buildNumber})');
+print('Platform: ${platformCubit.currentPlatform.name}');
+print('Is Mobile: ${platformCubit.isMobile}, Is Desktop: ${platformCubit.isDesktop}, Is Web: ${platformCubit.isWeb}');
+```
+
+**Bootstrap Pattern (synchronous, recommended for `main()`):**
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final platformService = DeviceInfoPlatformService();
+  final deviceInfo = await platformService.getDeviceInfo();
+
+  getIt.registerLazySingleton<PlatformCubit>(
+    () => PlatformCubit(service: platformService, initialInfo: deviceInfo),
+  );
+
+  runApp(const MyApp());
+}
+```
+
+**Manual Refresh:**
+```dart
+await context.read<PlatformCubit>().refreshDeviceInfo();
+```
 
 ---
 
-### 🎨 UI Components
+### 🎨 4. UI Components (`strata_ui`)
 
-#### Pagination Widget
+`strata_ui` contains decoupled, responsive UI components isolated from router dependencies.
 
-`CorePaginationWidget` provides a complete pagination solution powered by **EasyRefresh v3** with pull-to-refresh, load-more, skeleton loading, and error handling. **Highly optimized for performance** with minimal rebuilds and efficient memory usage.
+#### High-Performance Paginated List (`StrataPaginationWidget`)
 
-**Key Features:**
-- 🔄 Pull-to-refresh with customizable headers (`MaterialHeader`, `ClassicHeader`, or custom)
-- ⬇️ Load-more with customizable footers (`MaterialFooter`, `ClassicFooter`, or custom)
-- 💀 Skeleton loading with `Skeletonizer` integration
-- ⚠️ Error handling with retry functionality
-- 🎯 Scroll-to-top FAB (optional)
-- 📊 Supports both `ScrollView` and `Sliver` modes
-
-**Basic Usage:**
+`StrataPaginationWidget` provides platform-adaptive pull-to-refresh (`RefreshIndicator.adaptive`), infinite load-more via scroll notifications, full-screen and bottom loading states (`Skeletonizer`), inline page-N retry bar, desktop shortcuts (`Ctrl+R` / `Cmd+R`), and offline cache badges:
 
 ```dart
-CorePaginationWidget<User, PageMeta>(
-  paginationFunction: (batch, limit, {requestId}) async {
-    return await userRepository.getUsers(
-      PagePaginationParams(page: batch, limit: limit),
-    );
-  },
-  paginationStrategy: PagePaginationStrategy(limit: 20),
-  scrollableBuilder: (context, response, controller) {
-    return ListView.builder(
+StrataPaginationWidget<ProductItem, PaginationMetaModel>(
+  state: paginationState,
+  onRefresh: () async => context.read<ProductBloc>().add(const RefreshProducts()),
+  onLoadMore: () async => context.read<ProductBloc>().add(const LoadMoreProducts()),
+  emptyEntity: ProductItem.empty,
+  scrollableBuilder: (context, controller, items) {
+    return ListView.separated(
       controller: controller,
-      itemCount: response.data.length,
-      itemBuilder: (context, index) {
-        final user = response.data[index];
-        return ListTile(
-          title: Text(user.name),
-          subtitle: Text(user.email),
-        );
-      },
-    );
-  },
-  // Required if loadingBuilder is not provided (for skeleton loading)
-  emptyEntity: const User(id: '', name: '', email: ''),
-  emptyBuilder: (context) => const Center(
-    child: Text('No users found'),
-  ),
-)
-```
-
-**Advanced Usage with Custom Headers/Footers:**
-
-```dart
-CorePaginationWidget<Product, PageMeta>(
-  paginationFunction: (batch, limit, {requestId}) async {
-    return await productRepository.getProducts(
-      PagePaginationParams(page: batch, limit: limit),
-    );
-  },
-  paginationStrategy: PagePaginationStrategy(limit: 20),
-  scrollableBuilder: (context, response, controller) {
-    return GridView.builder(
-      controller: controller,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-      ),
-      itemCount: response.data.length,
-      itemBuilder: (context, index) => ProductCard(
-        product: response.data[index],
-      ),
-    );
-  },
-  emptyEntity: const Product(id: '', name: '', price: 0),
-  // Custom refresh header
-  headerBuilder: (context) => ClassicHeader(
-    dragText: 'Pull to refresh',
-    armedText: 'Release to refresh',
-    readyText: 'Refreshing...',
-    processingText: 'Refreshing...',
-    processedText: 'Refreshed',
-    noMoreText: 'No more',
-  ),
-  // Custom load-more footer
-  footerBuilder: (context) => ClassicFooter(
-    dragText: 'Pull to load',
-    armedText: 'Release to load',
-    readyText: 'Loading...',
-    processingText: 'Loading...',
-    processedText: 'Loaded',
-    noMoreText: 'No more data',
-  ),
-  // Custom error builder
-  errorBuilder: (context, failure, retry, alreadyFetchedItemsWidget) {
-    return Column(
-      children: [
-        if (alreadyFetchedItemsWidget != null) 
-          Expanded(child: alreadyFetchedItemsWidget),
-        Center(
-          child: Column(
-            children: [
-              Text('Error: ${failure.message}'),
-              ElevatedButton(
-                onPressed: retry,
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      ],
+      itemCount: items.length,
+      separatorBuilder: (_, __) => const Divider(),
+      itemBuilder: (context, index) => ListTile(title: Text(items[index].name)),
     );
   },
 )
 ```
 
-**Using with Existing Cubit:**
+#### Form Input Widgets
 
 ```dart
-// Create cubit elsewhere
-final paginationCubit = CorePaginationCubit<Product, PageMeta>(
-  paginationFunction: (batch, limit, {requestId}) async {
-    return await productRepository.getProducts(
-      PagePaginationParams(page: batch, limit: limit),
-    );
-  },
-  paginationStrategy: PagePaginationStrategy(limit: 20),
-);
-
-// Use in widget
-CorePaginationWidget<Product, PageMeta>(
-  paginationCubit: paginationCubit,
-  scrollableBuilder: (context, response, controller) {
-    // Your list implementation
-  },
-  emptyEntity: const Product(id: '', name: '', price: 0),
-)
-```
-
-**Performance Optimizations:**
-- ✅ **BlocSelector optimization** - Only rebuilds `EasyRefresh` when `hasReachedMax` changes
-- ✅ **Cached skeleton placeholders** - Instance-level caching prevents regeneration on theme changes
-- ✅ **Lazy error widget evaluation** - `alreadyFetchedItemsWidget` only built when error builder uses it
-- ✅ **Efficient list concatenation** - Uses `List.from()..addAll()` for better performance with large datasets
-- ✅ **Widget extraction** - `_PaginationBody` isolates state listening to prevent unnecessary rebuilds
-
-#### Form Fields
-
-```dart
-// Text field with validation
-CoreTextField(
-  label: 'Email',
-  validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-  keyboardType: TextInputType.emailAddress,
+// Text Field with Label and Validation
+StrataTextField(
+  label: 'Email Address',
+  validator: (val) => val == null || val.isEmpty ? 'Email is required' : null,
 )
 
-// PIN/OTP field
-CorePinCodeField(
+// PIN / OTP Code Input Field
+StrataPinCodeField(
   length: 6,
-  onCompleted: (pin) => print('PIN: $pin'),
+  onCompleted: (pin) => print('Entered PIN: $pin'),
 )
 ```
 
-#### Image Widget
+#### Image & Display Components
 
 ```dart
-CoreImage.network(
-  'https://example.com/image.jpg',
-  width: 200,
-  height: 200,
-  placeholder: (context, url) => const CircularProgressIndicator(),
-  errorWidget: (context, url, error) => const Icon(Icons.error),
+StrataImage.network(
+  'https://example.com/avatar.jpg',
+  width: 100,
+  height: 100,
+  borderRadius: BorderRadius.circular(12),
+)
+```
+
+#### Reactive Application Wrappers
+
+Wrap your root app widget with reactive framework builders:
+
+```dart
+ThemeWrapper(
+  builder: (context, themeMode) => LocalizationWrapper(
+    builder: (context, locale) => MaterialApp.router(
+      themeMode: themeMode,
+      locale: locale,
+      routerConfig: GetIt.I<GoRouter>(),
+    ),
+  ),
 )
 ```
 
 ---
 
-### 🧭 Navigation
+## 🛠️ Monorepo Commands (Melos)
 
-Coore integrates with `go_router` and is designed to work seamlessly with `go_router_builder` for type-safe navigation.
+When working inside the Strata monorepo root, execute workspace commands using **Melos**:
 
-```dart
-// After initialization, access the router
-final router = getIt<GoRouter>();
+```bash
+# Bootstrap all package dependencies
+melos bootstrap
 
-// Navigate from BLoCs/Services
-router.push('/users/123');
+# Run Dart analysis across all 6 packages
+melos run analyze
 
-// Show dialogs from BLoCs
-final context = CoreRouter.rootNavigatorKey.currentContext!;
-showDialog(context: context, builder: (context) => AlertDialog(...));
+# Run unit & widget tests across all sub-packages
+melos run test
 ```
-
-For type-safe navigation with `go_router_builder`, see the [Navigation Guide](docs/NAVIGATION_GUIDE.md).
-
----
-
-### 💾 Storage
-
-#### Local Database (Hive)
-
-```dart
-// Get an instance with a named box name parameter
-final localDb = getIt<NoSqlDatabaseInterface>(param1: 'userData');
-
-// Initialize the Hive box
-final initResult = await localDb.initialize();
-initResult.fold(
-  (failure) => print('Initialization failed: ${failure.message}'),
-  (_) => print('Database initialized'),
-);
-
-// Save data
-final saveResult = await localDb.save<String>('username', 'john_doe');
-saveResult.fold(
-  (failure) => print('Save failed: ${failure.message}'),
-  (_) => print('Data saved'),
-);
-
-// Read data
-final username = await localDb.get<String>('username');
-username.fold(
-  (failure) => print('Error: ${failure.message}'),
-  (value) => print('Username: $value'),
-);
-
-// Close when done
-await localDb.close();
-```
-
-#### Secure Storage
-
-```dart
-final secureDb = getIt<SecureDatabaseInterface>();
-
-// Initialize
-await secureDb.initialize();
-
-// Write sensitive data
-await secureDb.write('token', 'secret_token');
-
-// Read
-final token = await secureDb.read('token');
-```
-
----
-
-## 🏗️ Architecture
-
-Coore enforces **Clean Architecture** with a **feature-first** organization:
-
-```
-lib/
-├── src/
-│   ├── api_handler/          # Networking layer
-│   ├── state_management/      # BLoC state management
-│   ├── ui/                    # UI components
-│   ├── config/                # Configuration & DI
-│   ├── error_handling/        # Error handling & failures
-│   ├── local_storage/         # Data persistence
-│   └── navigation/            # Routing
-```
-
-### Key Principles
-
-1. **Separation of Concerns** - Each module has a single responsibility
-2. **Dependency Injection** - GetIt-based service locator pattern
-3. **Functional Error Handling** - `Either<Failure, T>` for type-safe error handling
-4. **Immutable State** - Freezed-based state classes
-5. **Type Safety** - Strong typing throughout the API
-
----
-
-## 🔧 Available Services
-
-After initialization, the following services are available via `getIt`:
-
-- `ApiHandlerInterface` - HTTP client
-- `CancelRequestManager` - Request cancellation
-- `NetworkStatusInterface` - Network connectivity monitoring
-- `NoSqlDatabaseInterface` - Local storage (Hive) - Requires `param1: 'boxName'`
-- `SecureDatabaseInterface` - Secure storage
-- `ThemeCubit` - Theme management
-- `LocalizationCubit` - Localization management
-- `PlatformCubit` - Platform information
-- `CoreLogger` - Logging service
-- `CoreRouter` - Router manager
-- `GoRouter` - Router instance
-
----
-
-## 📖 Additional Resources
-
-- [Navigation Guide](docs/NAVIGATION_GUIDE.md) - Comprehensive navigation documentation
-
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please follow the sub-package dependency boundary rules specified in `AGENTS.md` and `GLOSSARY.md`.
 
----
-
-
-**Built with ❤️ for the Flutter community**
-
+**Built with ❤️ for scalable Flutter development**

@@ -1,0 +1,10 @@
+name: strata
+
+packages:
+  - strata
+  - strata_*
+
+command:
+  bootstrap:
+    usePubGet: true
+sdkPath: .fvm/flutter_sdk

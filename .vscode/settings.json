@@ -4,7 +4,7 @@
   "editor.defaultFormatter": "Dart-Code.dart-code",
   "editor.formatOnType": true,
   "cSpell.words": [
-    "coore"
+    "strata"
   ],
-  "dart.flutterSdkPath": ".fvm/versions/3.38.2"
+  "dart.flutterSdkPath": ".fvm/versions/3.47.5"
 }
