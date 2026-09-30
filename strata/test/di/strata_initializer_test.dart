@@ -141,6 +141,35 @@ void main() {
       );
 
       expect(config1, equals(config2));
+      expect(config1.props, isNotEmpty);
+    });
+
+    test('initialize and reset work with default GetIt.instance', () async {
+      const config = StrataConfigEntity(
+        networkConfig: NetworkConfigEntity(
+          baseUrl: 'https://api.example.com',
+          excludedPaths: [],
+          refreshTokenApiEndpoint: '/refresh',
+          accessTokenKey: 'access_token',
+          refreshTokenKey: 'refresh_token',
+        ),
+        themeConfig: ThemeConfigEntity(
+          themeMode: ThemeMode.system,
+          enableAutoSwitch: false,
+        ),
+        localizationConfig: LocalizationConfigEntity(
+          defaultLocale: Locale('en'),
+          supportedLocales: [Locale('en')],
+          localizationsDelegates: [],
+        ),
+        errorParser: _testErrorParser,
+      );
+
+      await StrataInitializer.reset();
+      await StrataInitializer.initialize(config);
+      expect(GetIt.instance.isRegistered<SensitiveStorageInterface>(), isTrue);
+      await StrataInitializer.reset();
+      expect(GetIt.instance.isRegistered<SensitiveStorageInterface>(), isFalse);
     });
   });
 }

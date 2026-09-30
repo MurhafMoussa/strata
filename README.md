@@ -66,6 +66,27 @@ void main() async {
 }
 ```
 
+### 3. Install Strata Agent Skills (Optional)
+
+Strata provides an official AI agent skill suite for OpenCode and Claude Code to scaffold features, configure pagination, and manage authentication lifecycles with ease:
+
+```bash
+# Installs skills to .opencode/skills/
+dart run strata:install_skills
+
+# Options:
+#   --claude     Also install to .claude/skills/
+#   --global     Install globally to ~/.config/opencode/skills/
+#   --force      Overwrite existing skill files
+```
+
+Available skills in the suite:
+- `@strata`: Top-level router and architecture guide
+- `@strata-bootstrap`: Framework bootstrap and `main.dart` setup
+- `@strata-auth`: Token management, auto-refresh interceptors, and `AuthBloc`
+- `@strata-feature`: Feature-First Clean Architecture scaffolding with companion tests
+- `@strata-pagination`: Pull-to-refresh infinite scrolling with `StrataPaginationBloc` and `StrataPaginationWidget`
+
 ---
 
 ## 📖 Module Usage Guide

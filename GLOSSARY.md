@@ -107,3 +107,11 @@ _Avoid_: Identifiable (non-generic), Entity, HasId
 **PaginationParamsInterface**:
 The abstract interface in `strata_core` for pagination parameters with a `requestId` property, constraining the pagination bloc's generic parameter.
 _Avoid_: PaginationParams, PageParams
+
+**Strata Skills**:
+The curated suite of developer AI agent skills provided by the Strata framework, structured as a top-level router (`strata`) and modular workflow skills (`strata-bootstrap`, `strata-feature`, `strata-pagination`, `strata-auth`).
+_Avoid_: Coore Prompts, Strata Rules, Copilot Recipes
+
+**Strata Skills Installer**:
+The CLI utility executable in the `strata` package (`dart run strata:install_skills`) responsible for provisioning and updating the Strata agent skill suite in consumer applications.
+_Avoid_: SkillSetupScript, StrataCli, SkillCopier
