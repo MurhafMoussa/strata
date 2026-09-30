@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:strata_core/strata_core.dart';
-import 'package:strata_state/strata_state.dart';
+import 'package:strata_ui/strata_ui.dart';
 
 class MockPlatformServiceInterface extends Mock implements PlatformServiceInterface {}
 

@@ -5,7 +5,7 @@ import 'package:strata_core/strata_core.dart';
 import 'package:strata_state/strata_state.dart';
 import 'package:strata_ui/strata_ui.dart';
 
-class TestItem implements Identifiable {
+class TestItem implements Identifiable<String> {
   const TestItem({required this.id, required this.title});
   @override
   final String id;

@@ -4,12 +4,12 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Change `Identifiable` from `dynamic get id` to `T get id` in `strata_core`
-- [ ] Update all implementations of `Identifiable` across the codebase to specify their ID type
-- [ ] Update `StrataPaginationBloc`, `StrataPaginationState`, `StrataPaginationEvent`, `PaginationCacheAdapterInterface` to use `Identifiable<T>` with proper type parameters
-- [ ] Update `StrataPaginationWidget` type constraints from `T extends Identifiable` to `T extends Identifiable<T>`
-- [ ] Update `PaginationParams` and related network types
-- [ ] Update all affected tests
-- [ ] Run `dart analyze` and `dart test` in each modified sub-package
+- [x] Change `Identifiable` from `dynamic get id` to `T get id` in `strata_core`
+- [x] Update all implementations of `Identifiable` across the codebase to specify their ID type
+- [x] Update `StrataPaginationBloc`, `StrataPaginationState`, `StrataPaginationEvent`, `PaginationCacheAdapterInterface` to use `Identifiable<T>` with proper type parameters
+- [x] Update `StrataPaginationWidget` type constraints from `T extends Identifiable` to `T extends Identifiable<T>`
+- [x] Update `PaginationParams` and related network types
+- [x] Update all affected tests
+- [x] Run `dart analyze` and `dart test` in each modified sub-package

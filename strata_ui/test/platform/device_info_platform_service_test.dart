@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:strata_core/strata_core.dart';
-import 'package:strata_state/strata_state.dart';
+import 'package:strata_ui/strata_ui.dart';
 
 class MockDeviceInfoPlugin extends Mock implements DeviceInfoPlugin {}
 class MockBaseDeviceInfo extends Mock implements BaseDeviceInfo {}
@@ -37,7 +37,7 @@ void main() {
     debugDefaultTargetPlatformOverride = null;
   });
 
-  group('PlatformServiceImpl', () {
+  group('DeviceInfoPlatformService', () {
     test('collects Android device info successfully', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       final androidInfo = MockAndroidDeviceInfo();
@@ -51,7 +51,7 @@ void main() {
       when(() => androidInfo.isPhysicalDevice).thenReturn(true);
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => androidInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -80,7 +80,7 @@ void main() {
       when(() => iosInfo.isPhysicalDevice).thenReturn(true);
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => iosInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -107,7 +107,7 @@ void main() {
       when(() => iosInfo.isPhysicalDevice).thenReturn(false);
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => iosInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -127,7 +127,7 @@ void main() {
       when(() => winInfo.productName).thenReturn('Windows 11 Pro');
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => winInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -151,7 +151,7 @@ void main() {
       when(() => macInfo.osRelease).thenReturn('Version 14.1');
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => macInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -175,7 +175,7 @@ void main() {
       when(() => macInfo.osRelease).thenReturn('Version 14.1');
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => macInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -193,7 +193,7 @@ void main() {
       when(() => linuxInfo.versionId).thenReturn('24.04');
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => linuxInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -217,7 +217,7 @@ void main() {
       when(() => linuxInfo.versionId).thenReturn(null);
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => linuxInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -233,7 +233,7 @@ void main() {
       final baseInfo = MockBaseDeviceInfo();
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => baseInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -257,7 +257,7 @@ void main() {
       when(() => webInfo.platform).thenReturn('Win32');
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => webInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
         isWebOverride: true,
@@ -282,7 +282,7 @@ void main() {
       when(() => webInfo.platform).thenReturn(null);
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => webInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
         isWebOverride: true,
@@ -299,7 +299,7 @@ void main() {
     test('returns DeviceInfoEntity.unknown when deviceInfoPlugin throws', () async {
       when(() => mockDeviceInfoPlugin.deviceInfo).thenThrow(Exception('Native plugin error'));
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );
@@ -314,7 +314,7 @@ void main() {
       final baseInfo = MockBaseDeviceInfo();
       when(() => mockDeviceInfoPlugin.deviceInfo).thenAnswer((_) async => baseInfo);
 
-      final service = PlatformServiceImpl(
+      final service = DeviceInfoPlatformService(
         deviceInfoPlugin: mockDeviceInfoPlugin,
         packageInfo: mockPackageInfo,
       );

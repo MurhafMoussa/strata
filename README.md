@@ -4,7 +4,7 @@
 [![Dart](https://img.shields.io/badge/Dart-3.0+-blue.svg)](https://dart.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-**Strata** is an enterprise modular Flutter & Dart framework structured as a Melos monorepo. It is decomposed into 7 focused sub-packages designed for maximum flexibility, zero unnecessary framework lock-in, functional error handling via `fpdart`, and robust async dependency injection using `GetIt`.
+**Strata** is an enterprise modular Flutter & Dart framework structured as a Melos monorepo. It is decomposed into 6 focused sub-packages designed for maximum flexibility, zero unnecessary framework lock-in, functional error handling via `fpdart`, and robust async dependency injection using `GetIt`.
 
 ---
 
@@ -56,10 +56,6 @@ void main() async {
       enableRetry: true,
       maxRetryAttempts: 3,
       retryInterval: Duration(seconds: 2),
-    ),
-    navigationConfig: NavigationConfigEntity(
-      routes: $appRoutes, // GoRouter routes
-      initialLocation: '/',
     ),
   );
 
@@ -304,7 +300,7 @@ print('Is Mobile: ${platformCubit.isMobile}, Is Desktop: ${platformCubit.isDeskt
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final platformService = PlatformServiceImpl();
+  final platformService = DeviceInfoPlatformService();
   final deviceInfo = await platformService.getDeviceInfo();
 
   getIt.registerLazySingleton<PlatformCubit>(
@@ -400,7 +396,7 @@ When working inside the Strata monorepo root, execute workspace commands using *
 # Bootstrap all package dependencies
 melos bootstrap
 
-# Run Dart analysis across all 7 packages
+# Run Dart analysis across all 6 packages
 melos run analyze
 
 # Run unit & widget tests across all sub-packages

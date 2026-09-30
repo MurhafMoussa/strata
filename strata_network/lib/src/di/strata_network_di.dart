@@ -38,8 +38,8 @@ extension StrataNetworkDiExtension on GetIt {
       }
     }
 
-    if (!isRegistered<CancelRequestManagerInterface>()) {
-      registerLazySingleton<CancelRequestManagerInterface>(
+    if (!isRegistered<NetworkCancelRequestManagerInterface>()) {
+      registerLazySingleton<NetworkCancelRequestManagerInterface>(
         () => DefaultCancelRequestManager(),
       );
     }
@@ -163,7 +163,7 @@ extension StrataNetworkDiExtension on GetIt {
         () => DioApiHandler(
           get<Dio>(),
           get<NetworkExceptionMapperInterface>(),
-          get<CancelRequestManagerInterface>(),
+          get<NetworkCancelRequestManagerInterface>(),
         ),
       );
     }

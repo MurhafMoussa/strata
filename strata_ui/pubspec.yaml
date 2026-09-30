@@ -10,13 +10,17 @@ environment:
 
 dependencies:
   cached_network_image: ^4.0.0
+  device_info_plus: ^13.2.0
+  package_info_plus: ^10.2.1
   carousel_slider: ^5.1.1
   equatable: ^3.0.0
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
   flutter_svg: ^2.2.0
   gap: ^3.0.1
   get_it: ^9.0.5
+  intl: ^0.20.2
   pinput: ^6.0.0
   readmore: ^3.0.0
   shimmer: ^4.0.0
@@ -28,6 +32,8 @@ dependencies:
   typed_form_fields: ^2.0.2
 
 dev_dependencies:
+  bloc_test: ^10.0.0
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
+  mocktail: ^1.0.4

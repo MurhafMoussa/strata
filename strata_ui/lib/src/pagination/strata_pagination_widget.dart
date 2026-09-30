@@ -19,7 +19,7 @@ import '../widgets/strata_scrollable_content_with_fab.dart';
 ///   child: MaterialApp(home: ProductListPage()),
 /// );
 /// ```
-class StrataPaginationConfig<T extends Identifiable, M extends MetaModel>
+class StrataPaginationConfig<T extends Identifiable<String>, M extends MetaModel>
     extends InheritedWidget {
   /// Creates a [StrataPaginationConfig].
   const StrataPaginationConfig({
@@ -107,14 +107,14 @@ class StrataPaginationConfig<T extends Identifiable, M extends MetaModel>
 
   /// Safely attempts to retrieve the nearest ancestor [StrataPaginationConfig].
   static StrataPaginationConfig<T, M>?
-  maybeOf<T extends Identifiable, M extends MetaModel>(BuildContext context) {
+  maybeOf<T extends Identifiable<String>, M extends MetaModel>(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<StrataPaginationConfig<T, M>>();
   }
 
   /// Retrieves the nearest ancestor [StrataPaginationConfig] or throws an assertion error.
   static StrataPaginationConfig<T, M>
-  of<T extends Identifiable, M extends MetaModel>(BuildContext context) {
+  of<T extends Identifiable<String>, M extends MetaModel>(BuildContext context) {
     final cfg = maybeOf<T, M>(context);
     assert(cfg != null, 'No StrataPaginationConfig<$T, $M> found in context');
     return cfg!;
@@ -157,7 +157,7 @@ class StrataPaginationConfig<T extends Identifiable, M extends MetaModel>
 ///   },
 /// );
 /// ```
-class StrataPaginationWidget<T extends Identifiable, M extends MetaModel>
+class StrataPaginationWidget<T extends Identifiable<String>, M extends MetaModel>
     extends StatefulWidget {
   /// Creates a [StrataPaginationWidget].
   const StrataPaginationWidget({
@@ -332,7 +332,7 @@ class StrataPaginationWidget<T extends Identifiable, M extends MetaModel>
       _StrataPaginationWidgetState<T, M>();
 }
 
-class _StrataPaginationWidgetState<T extends Identifiable, M extends MetaModel>
+class _StrataPaginationWidgetState<T extends Identifiable<String>, M extends MetaModel>
     extends State<StrataPaginationWidget<T, M>> {
   ScrollController? _internalController;
 

@@ -1,6 +1,6 @@
 export 'src/config/localization_config_entity.dart';
 export 'src/config/theme_config_entity.dart';
-export 'src/dev_tools/core_bloc_observer.dart';
+export 'src/dev_tools/strata_bloc_observer.dart';
 export 'src/di/strata_state_di.dart';
 export 'src/localization/localization_cubit.dart';
 export 'src/network/network_status_cubit.dart';
@@ -8,9 +8,7 @@ export 'src/pagination/pagination_cache_adapter_interface.dart';
 export 'src/pagination/strata_pagination_bloc.dart';
 export 'src/pagination/strata_pagination_event.dart';
 export 'src/pagination/strata_pagination_state.dart';
-export 'src/platform/platform_cubit.dart';
-export 'src/platform/platform_service_impl.dart';
-export 'src/state_management/async_builder.dart';
+
 export 'src/state_management/async_handler.dart';
 export 'src/state_management/async_host_mixin.dart';
 export 'src/state_management/disposable_async_handler_interface.dart';

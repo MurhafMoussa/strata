@@ -1,6 +1,4 @@
-import 'usecase.dart';
-
-abstract class UnawaitedUseCase<Output, Input> extends UseCase {
+abstract class UnawaitedUseCase<Output, Input> {
   const UnawaitedUseCase();
 
   Output call(Input input);

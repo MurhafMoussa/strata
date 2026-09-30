@@ -25,7 +25,7 @@ import 'strata_pagination_state.dart';
 /// bloc.add(const StrataPaginationInitialFetched());
 /// ```
 class StrataPaginationBloc<
-  T extends Identifiable,
+  T extends Identifiable<String>,
   M extends MetaModel,
   P extends Object
 >
@@ -79,7 +79,7 @@ class StrataPaginationBloc<
   final String Function(P params)? requestIdGenerator;
 
   /// Optional manager handling network request cancellation.
-  final PaginatedCancelManagerInterface? cancelRequestManager;
+  final CancelRequestManagerInterface? cancelRequestManager;
 
   /// Optional caching adapter handling local offline persistence.
   final PaginationCacheAdapterInterface<T, M>? cacheAdapter;
@@ -366,7 +366,7 @@ class StrataPaginationBloc<
     );
   }
 
-  /// Deduplicates [incoming] items against [existing] items by [Identifiable.id] using $O(N)$ set lookups.
+  /// Deduplicates [incoming] items against [existing] items by `Identifiable.id` using $O(N)$ set lookups.
   List<T> _deduplicateAndAppend(List<T> existing, List<T> incoming) {
     final seenIds = existing.map((e) => e.id).toSet();
     final combined = List<T>.from(existing);

@@ -27,7 +27,7 @@ class MockResponseInterceptorHandler extends Mock
     implements ResponseInterceptorHandler {}
 
 class MockCancelRequestManager extends Mock
-    implements CancelRequestManagerInterface {}
+    implements NetworkCancelRequestManagerInterface {}
 
 class MockNetworkExceptionMapper extends Mock
     implements NetworkExceptionMapperInterface {}

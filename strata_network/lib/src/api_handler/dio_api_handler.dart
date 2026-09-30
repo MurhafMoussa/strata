@@ -11,7 +11,7 @@ import 'models/models.dart';
 class DioApiHandler(
   final Dio _dio,
   final NetworkExceptionMapperInterface _exceptionMapper,
-  final CancelRequestManagerInterface _cancelRequestManager,
+  final NetworkCancelRequestManagerInterface _cancelRequestManager,
 ) implements ApiHandlerInterface {
   Options _buildOptions(ApiRequestOptions? options, {bool isFormData = false}) {
     final opts = options ?? const ApiRequestOptions();

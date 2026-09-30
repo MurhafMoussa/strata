@@ -38,7 +38,7 @@ class DummyThrowingStrategy extends PaginationStrategy<ThrowingParam> {
       null;
 }
 
-class DummyCacheAdapter<T extends Identifiable, M extends MetaModel>
+class DummyCacheAdapter<T extends Identifiable<String>, M extends MetaModel>
     extends PaginationCacheAdapterInterface<T, M> {
   final Map<String, PaginationResponseModel<T, M>> _storage = {};
 

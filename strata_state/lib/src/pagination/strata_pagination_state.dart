@@ -19,7 +19,7 @@ import 'package:strata_core/strata_core.dart';
 /// print(state.isFromCache); // true
 /// print(state.hasReachedMax); // false
 /// ```
-sealed class StrataPaginationState<T extends Identifiable, M extends MetaModel>
+sealed class StrataPaginationState<T extends Identifiable<String>, M extends MetaModel>
     extends Equatable {
   /// Const constructor for [StrataPaginationState].
   const StrataPaginationState();
@@ -135,7 +135,7 @@ sealed class StrataPaginationState<T extends Identifiable, M extends MetaModel>
 }
 
 /// Initial uninitialized state before any fetch operation.
-final class PaginationInitial<T extends Identifiable, M extends MetaModel>
+final class PaginationInitial<T extends Identifiable<String>, M extends MetaModel>
     extends StrataPaginationState<T, M> {
   /// Creates a [PaginationInitial] state.
   const PaginationInitial();
@@ -145,7 +145,7 @@ final class PaginationInitial<T extends Identifiable, M extends MetaModel>
 }
 
 /// State representing an active initial page request.
-final class PaginationLoading<T extends Identifiable, M extends MetaModel>
+final class PaginationLoading<T extends Identifiable<String>, M extends MetaModel>
     extends StrataPaginationState<T, M> {
   /// Creates a [PaginationLoading] state.
   const PaginationLoading();
@@ -155,7 +155,7 @@ final class PaginationLoading<T extends Identifiable, M extends MetaModel>
 }
 
 /// State representing successfully loaded paginated data.
-final class PaginationSucceeded<T extends Identifiable, M extends MetaModel>
+final class PaginationSucceeded<T extends Identifiable<String>, M extends MetaModel>
     extends StrataPaginationState<T, M> {
   /// Creates a [PaginationSucceeded] state.
   const PaginationSucceeded({
@@ -187,7 +187,7 @@ final class PaginationSucceeded<T extends Identifiable, M extends MetaModel>
 }
 
 /// State representing an active pull-to-refresh operation preserving current items.
-final class PaginationRefreshing<T extends Identifiable, M extends MetaModel>
+final class PaginationRefreshing<T extends Identifiable<String>, M extends MetaModel>
     extends StrataPaginationState<T, M> {
   /// Creates a [PaginationRefreshing] state.
   const PaginationRefreshing({
@@ -219,7 +219,7 @@ final class PaginationRefreshing<T extends Identifiable, M extends MetaModel>
 }
 
 /// State representing an active load-more page request preserving current items.
-final class PaginationLoadingMore<T extends Identifiable, M extends MetaModel>
+final class PaginationLoadingMore<T extends Identifiable<String>, M extends MetaModel>
     extends StrataPaginationState<T, M> {
   /// Creates a [PaginationLoadingMore] state.
   const PaginationLoadingMore({
@@ -251,7 +251,7 @@ final class PaginationLoadingMore<T extends Identifiable, M extends MetaModel>
 }
 
 /// State representing a failed initial page fetch.
-final class PaginationFailed<T extends Identifiable, M extends MetaModel>
+final class PaginationFailed<T extends Identifiable<String>, M extends MetaModel>
     extends StrataPaginationState<T, M> {
   /// Creates a [PaginationFailed] state.
   const PaginationFailed({
@@ -274,7 +274,7 @@ final class PaginationFailed<T extends Identifiable, M extends MetaModel>
 }
 
 /// State representing a failed incremental page fetch (page N >= 2) preserving existing items.
-final class PaginationPageFetchFailure<T extends Identifiable,
+final class PaginationPageFetchFailure<T extends Identifiable<String>,
         M extends MetaModel> extends StrataPaginationState<T, M> {
   /// Creates a [PaginationPageFetchFailure] state.
   const PaginationPageFetchFailure({

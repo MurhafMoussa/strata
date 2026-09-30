@@ -10,7 +10,7 @@ void main() {
       final content = pubspecFile.readAsStringSync();
       final lines = content.split('\n');
 
-      final prohibitedPackages = ['flutter_bloc', 'go_router', 'dio', 'hive', 'isotope', 'easy_refresh'];
+      final prohibitedPackages = ['go_router', 'dio', 'hive', 'isotope', 'easy_refresh'];
 
       for (final package in prohibitedPackages) {
         final hasProhibited = lines.any((line) {
@@ -26,7 +26,7 @@ void main() {
       }
     });
 
-    test('lib/ files must NOT import flutter_bloc or go_router', () {
+    test('lib/ files must NOT import go_router or easy_refresh', () {
       final libDir = Directory('lib');
       expect(libDir.existsSync(), isTrue);
 
@@ -37,11 +37,6 @@ void main() {
 
       for (final file in dartFiles) {
         final content = file.readAsStringSync();
-        expect(
-          content.contains("import 'package:flutter_bloc/"),
-          isFalse,
-          reason: '${file.path} imports flutter_bloc',
-        );
         expect(
           content.contains("import 'package:go_router/"),
           isFalse,

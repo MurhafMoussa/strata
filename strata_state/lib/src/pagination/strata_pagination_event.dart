@@ -9,7 +9,7 @@ import 'package:strata_core/strata_core.dart';
 /// const moreEvent = StrataPaginationMoreFetched<TestItem>(limit: 20);
 /// const filterEvent = StrataPaginationFilterUpdated<TestItem>(extra: {'status': 'active'});
 /// ```
-sealed class StrataPaginationEvent<T extends Identifiable> extends Equatable {
+sealed class StrataPaginationEvent<T extends Identifiable<String>> extends Equatable {
   /// Const constructor for [StrataPaginationEvent].
   const StrataPaginationEvent();
 
@@ -18,7 +18,7 @@ sealed class StrataPaginationEvent<T extends Identifiable> extends Equatable {
 }
 
 /// Dispatched to trigger initial data fetching or a full reset-and-fetch.
-class StrataPaginationInitialFetched<T extends Identifiable>
+class StrataPaginationInitialFetched<T extends Identifiable<String>>
     extends StrataPaginationEvent<T> {
   /// Creates a [StrataPaginationInitialFetched] event.
   const StrataPaginationInitialFetched({
@@ -41,7 +41,7 @@ class StrataPaginationInitialFetched<T extends Identifiable>
 }
 
 /// Dispatched during user pull-to-refresh to fetch page 1 while retaining current items.
-class StrataPaginationRefreshed<T extends Identifiable>
+class StrataPaginationRefreshed<T extends Identifiable<String>>
     extends StrataPaginationEvent<T> {
   /// Creates a [StrataPaginationRefreshed] event.
   const StrataPaginationRefreshed({
@@ -60,7 +60,7 @@ class StrataPaginationRefreshed<T extends Identifiable>
 }
 
 /// Dispatched when user scrolls near list end to request the next page of items.
-class StrataPaginationMoreFetched<T extends Identifiable>
+class StrataPaginationMoreFetched<T extends Identifiable<String>>
     extends StrataPaginationEvent<T> {
   /// Creates a [StrataPaginationMoreFetched] event.
   const StrataPaginationMoreFetched({
@@ -75,7 +75,7 @@ class StrataPaginationMoreFetched<T extends Identifiable>
 }
 
 /// Dispatched when user changes search query or filters to restart pagination.
-class StrataPaginationFilterUpdated<T extends Identifiable>
+class StrataPaginationFilterUpdated<T extends Identifiable<String>>
     extends StrataPaginationEvent<T> {
   /// Creates a [StrataPaginationFilterUpdated] event.
   const StrataPaginationFilterUpdated({
@@ -94,7 +94,7 @@ class StrataPaginationFilterUpdated<T extends Identifiable>
 }
 
 /// Dispatched to optimistically add an item to the current state.
-class StrataPaginationItemAdded<T extends Identifiable>
+class StrataPaginationItemAdded<T extends Identifiable<String>>
     extends StrataPaginationEvent<T> {
   /// Creates a [StrataPaginationItemAdded] event.
   const StrataPaginationItemAdded(
@@ -113,7 +113,7 @@ class StrataPaginationItemAdded<T extends Identifiable>
 }
 
 /// Dispatched to optimistically update an item in state matching [item.id].
-class StrataPaginationItemUpdated<T extends Identifiable>
+class StrataPaginationItemUpdated<T extends Identifiable<String>>
     extends StrataPaginationEvent<T> {
   /// Creates a [StrataPaginationItemUpdated] event.
   const StrataPaginationItemUpdated(this.item);
@@ -126,7 +126,7 @@ class StrataPaginationItemUpdated<T extends Identifiable>
 }
 
 /// Dispatched to optimistically remove an item from state matching [id].
-class StrataPaginationItemDeleted<T extends Identifiable>
+class StrataPaginationItemDeleted<T extends Identifiable<String>>
     extends StrataPaginationEvent<T> {
   /// Creates a [StrataPaginationItemDeleted] event.
   const StrataPaginationItemDeleted(this.id);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:strata_core/strata_core.dart';
-import 'package:strata_state/strata_state.dart';
+import 'package:strata_ui/strata_ui.dart';
 
 class TestBuilderState {
   const TestBuilderState({required this.asyncState});

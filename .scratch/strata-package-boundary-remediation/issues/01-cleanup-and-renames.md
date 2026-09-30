@@ -4,13 +4,13 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Remove `library;` directive from `strata_storage.dart` and `strata.dart`
-- [ ] Remove `UseCase` marker class from `strata_core`; update `ResultFutureUseCase`, `ResultStreamUseCase`, `UnawaitedUseCase` to stand on their own (no `extends UseCase`)
-- [ ] Remove `hide SkipPaginationParams, CursorPaginationParams` from `strata.dart` meta-package export
-- [ ] Remove `export 'package:talker_dio_logger/talker_dio_logger.dart'` from `strata_network.dart`
-- [ ] Rename `PaginatedCancelManagerInterface` → `CancelRequestManagerInterface` in `strata_core`; update `strata_network` to extend it; update all references
-- [ ] Rename `CoreBlocObserver` → `StrataBlocObserver`; update all references
-- [ ] Update all affected tests to use new names
-- [ ] Run `dart analyze` and `dart test` in each modified sub-package
+- [x] Remove `library;` directive from `strata_storage.dart` and `strata.dart`
+- [x] Remove `UseCase` marker class from `strata_core`; update `ResultFutureUseCase`, `ResultStreamUseCase`, `UnawaitedUseCase` to stand on their own (no `extends UseCase`)
+- [x] Remove `hide SkipPaginationParams, CursorPaginationParams` from `strata.dart` meta-package export
+- [x] Remove `export 'package:talker_dio_logger/talker_dio_logger.dart'` from `strata_network.dart`
+- [x] Rename `PaginatedCancelManagerInterface` → `CancelRequestManagerInterface` in `strata_core`; update `strata_network` to extend it; update all references
+- [x] Rename `CoreBlocObserver` → `StrataBlocObserver`; update all references
+- [x] Update all affected tests to use new names
+- [x] Run `dart analyze` and `dart test` in each modified sub-package

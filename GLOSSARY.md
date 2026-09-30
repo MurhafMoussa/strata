@@ -67,3 +67,43 @@ _Avoid_: PaginationBloc, PaginationController, CorePaginationCubit, CorePaginati
 **StrataPaginationWidget**:
 The decoupled presentation component in `strata_ui` providing native platform-adaptive pull-to-refresh (`RefreshIndicator.adaptive`) and infinite scrolling across multi-screen layouts.
 _Avoid_: CorePaginationWidget, EasyRefreshWidget, SmartRefresher
+
+**NetworkExceptionMapperInterface**:
+The abstract contract in `strata_network` for mapping Dio/network exceptions into domain `Failure` instances. Implemented by `DioExceptionMapper`.
+_Avoid_: ExceptionConverter, DioExceptionMapperInterface
+
+**PaginationCacheAdapterInterface**:
+The abstract contract in `strata_state` for pluggable offline caching of paginated responses. Implementations handle loading, persisting, and clearing paginated data from local persistence layers (Hive, SQLite, SharedPreferences).
+_Avoid_: PaginationCache, CacheAdapterInterface
+
+**PaginationCachePolicy**:
+The enum in `strata_core` defining the caching strategy when fetching paginated data (`networkOnly`, `cacheFirst`, `cacheAndNetwork`).
+_Avoid_: CacheStrategy, PaginationCacheMode
+
+**StrataPaginationConfig**:
+The InheritedWidget in `strata_ui` providing default configuration to descendant `StrataPaginationWidget`s (scroll threshold, builders, platform options).
+_Avoid_: PaginationConfig, PaginationInheritedWidget
+
+**StrataScrollableContentWithFab**:
+The widget in `strata_ui` wrapping scrollable content with a floating action button that appears on scroll and animates scroll-to-top.
+_Avoid_: ScrollableWithFab, FabScrollWidget
+
+**ValueSelectorCubit / SingleSelectorCubit / MultiSelectorCubit**:
+The Cubit hierarchy in `strata_state` for managing single and multi-selection of values with immutable state updates.
+_Avoid_: SelectorCubit, ValueSelector, MultiSelectCubit
+
+**NetworkStatusCubit**:
+The Cubit in `strata_state` managing current network connection status by listening to `NetworkStatusInterface` streams.
+_Avoid_: NetworkCubit, ConnectivityCubit
+
+**StrataBlocObserver**:
+The BlocObserver in `strata_state` logging events, state changes, transitions, errors, creation, and closure of blocs using `StrataLoggerInterface`.
+_Avoid_: CoreBlocObserver, BlocLogger
+
+**Identifiable<T>**:
+The abstract interface in `strata_core` for entities with a unique identifier, used by the pagination system for type-safe item deduplication.
+_Avoid_: Identifiable (non-generic), Entity, HasId
+
+**PaginationParamsInterface**:
+The abstract interface in `strata_core` for pagination parameters with a `requestId` property, constraining the pagination bloc's generic parameter.
+_Avoid_: PaginationParams, PageParams

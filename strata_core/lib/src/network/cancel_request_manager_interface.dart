@@ -1,8 +1,8 @@
-/// Abstract contract for managing paginated request cancellation across sub-packages.
+/// Abstract contract for managing request cancellation across sub-packages.
 ///
 /// `@example`
 /// ```dart
-/// class MyCancelManager extends PaginatedCancelManagerInterface {
+/// class MyCancelManager extends CancelRequestManagerInterface {
 ///   @override
 ///   void cancelRequest(String requestId, {String? reason}) {
 ///     print('Cancelled $requestId: $reason');
@@ -14,9 +14,9 @@
 ///   }
 /// }
 /// ```
-abstract class PaginatedCancelManagerInterface {
-  /// Const constructor for [PaginatedCancelManagerInterface].
-  const PaginatedCancelManagerInterface();
+abstract class CancelRequestManagerInterface {
+  /// Const constructor for [CancelRequestManagerInterface].
+  const CancelRequestManagerInterface();
 
   /// Cancels all active network requests associated with [requestId].
   void cancelRequest(String requestId, {String? reason});

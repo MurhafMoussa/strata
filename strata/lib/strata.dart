@@ -1,5 +1,3 @@
-library;
-
 export 'package:strata_core/strata_core.dart'
     hide SkipPaginationParams, CursorPaginationParams;
 export 'package:strata_network/strata_network.dart';

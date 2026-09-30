@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'cancel_request_manager_interface.dart';
 
-/// Default implementation of [CancelRequestManagerInterface] supporting concurrent requests.
+/// Default implementation of [NetworkCancelRequestManagerInterface] supporting concurrent requests.
 ///
 /// Uses `Map<String, Set<CancelToken>>` to ensure concurrent requests sharing identical
 /// `requestId` strings maintain distinct active cancel tokens without overwriting each other.
-class DefaultCancelRequestManager implements CancelRequestManagerInterface {
+class DefaultCancelRequestManager implements NetworkCancelRequestManagerInterface {
   final Map<String, Set<CancelToken>> _activeRequests = {};
 
   @override

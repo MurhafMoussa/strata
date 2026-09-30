@@ -1,5 +1,3 @@
-export 'package:talker_dio_logger/talker_dio_logger.dart'
-    show TalkerDioLogger, TalkerDioLoggerSettings;
 export 'src/api_handler/api_handler_interface.dart';
 export 'src/api_handler/cancel_request_manager_interface.dart';
 export 'src/api_handler/default_cancel_request_manager.dart';

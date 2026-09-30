@@ -1,3 +1,3 @@
-abstract interface class Identifiable {
-  dynamic get id;
+abstract interface class Identifiable<T> {
+  T get id;
 }

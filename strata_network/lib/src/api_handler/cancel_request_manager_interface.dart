@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:strata_core/strata_core.dart';
+import 'package:strata_core/strata_core.dart' as core;
 import 'params/params.dart';
 
 /// Abstract contract for managing request cancellation tokens.
-abstract class CancelRequestManagerInterface implements PaginatedCancelManagerInterface {
+abstract class NetworkCancelRequestManagerInterface
+    extends core.CancelRequestManagerInterface {
   /// Registers a new request under [requestId], returning a distinct [CancelToken].
   CancelToken registerRequest(String requestId);
 
@@ -28,7 +29,7 @@ abstract class CancelRequestManagerInterface implements PaginatedCancelManagerIn
   bool get hasActiveRequests;
 }
 
-/// Extension methods on [CancelRequestManagerInterface] for paginated request cancellation.
+/// Extension methods on [NetworkCancelRequestManagerInterface] for paginated request cancellation.
 ///
 /// `@example`
 /// ```dart
@@ -37,7 +38,7 @@ abstract class CancelRequestManagerInterface implements PaginatedCancelManagerIn
 /// final token = manager.registerPaginationRequest(params);
 /// manager.cancelPaginationRequest(params, reason: 'Page refreshed');
 /// ```
-extension PaginatedCancelRequestManagerX on CancelRequestManagerInterface {
+extension PaginatedCancelRequestManagerX on NetworkCancelRequestManagerInterface {
   /// Registers a new paginated request under [params.requestId].
   CancelToken registerPaginationRequest(PaginationParams params) {
     return registerRequest(params.requestId);

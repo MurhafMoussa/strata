@@ -3,9 +3,9 @@ import 'package:strata_core/strata_core.dart';
 
 /// A Bloc observer that logs events, state changes, transitions, errors,
 /// creation, and closure of blocs using an injected [StrataLoggerInterface] instance.
-class CoreBlocObserver extends BlocObserver {
-  /// Creates a new [CoreBlocObserver] with the given [logger].
-  CoreBlocObserver(this.logger);
+class StrataBlocObserver extends BlocObserver {
+  /// Creates a new [StrataBlocObserver] with the given [logger].
+  StrataBlocObserver(this.logger);
 
   /// The logger instance used for logging Bloc events and changes.
   final StrataLoggerInterface logger;

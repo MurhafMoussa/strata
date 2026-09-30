@@ -4,13 +4,13 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Move `strata_string_extensions.dart` from `strata_core/lib/src/extensions/` to `strata_ui/lib/src/extensions/`
-- [ ] Move `strata_datetime_extensions.dart` from `strata_core/lib/src/extensions/` to `strata_ui/lib/src/extensions/`
-- [ ] Move `value_tester.dart` from `strata_core/lib/src/utils/` to `strata_ui/lib/src/utils/`
-- [ ] Update `strata_core.dart` barrel export to remove all three
-- [ ] Update `strata_ui.dart` barrel export to add all three
-- [ ] Update all imports across the codebase
-- [ ] Move and update associated tests
-- [ ] Run `dart analyze` and `dart test` in both `strata_core` and `strata_ui`
+- [x] Move `strata_string_extensions.dart` from `strata_core/lib/src/extensions/` to `strata_ui/lib/src/extensions/`
+- [x] Move `strata_datetime_extensions.dart` from `strata_core/lib/src/extensions/` to `strata_ui/lib/src/extensions/`
+- [x] Move `value_tester.dart` from `strata_core/lib/src/utils/` to `strata_ui/lib/src/utils/`
+- [x] Update `strata_core.dart` barrel export to remove all three
+- [x] Update `strata_ui.dart` barrel export to add all three
+- [x] Update all imports across the codebase
+- [x] Move and update associated tests
+- [x] Run `dart analyze` and `dart test` in both `strata_core` and `strata_ui`

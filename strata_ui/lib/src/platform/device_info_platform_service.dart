@@ -4,8 +4,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:strata_core/strata_core.dart';
 
 /// Implementation of platform service providing comprehensive device and platform information.
-class PlatformServiceImpl implements PlatformServiceInterface {
-  PlatformServiceImpl({
+class DeviceInfoPlatformService implements PlatformServiceInterface {
+  DeviceInfoPlatformService({
     DeviceInfoPlugin? deviceInfoPlugin,
     PackageInfo? packageInfo,
     bool? isWebOverride,

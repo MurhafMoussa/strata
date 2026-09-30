@@ -5,7 +5,7 @@ import 'package:strata_core/strata_core.dart';
 import 'package:strata_state/strata_state.dart';
 
 /// Standard test entity implementing [Identifiable] for state testing.
-class TestItem extends Equatable implements Identifiable {
+class TestItem extends Equatable implements Identifiable<String> {
   /// Creates a [TestItem].
   const TestItem(this.id, {this.name = ''});
 
@@ -60,7 +60,7 @@ Future<Either<Failure, PaginationResponseModel<TestItem, NoMetaModel>>>
 }
 
 /// Reusable mock cancellation manager for state tests.
-class MockCancelManager extends Mock implements PaginatedCancelManagerInterface {}
+class MockCancelManager extends Mock implements CancelRequestManagerInterface {}
 
 /// Reusable mock caching adapter for state tests.
 class MockCacheAdapter extends Mock

@@ -59,7 +59,7 @@ void main() {
     });
 
     test(
-        'registerStrataState registers platform dependencies when service is provided',
+        'registerStrataState registers platform service when provided',
         () {
       final getIt = GetIt.asNewInstance();
       final mockService = MockPlatformServiceInterface();
@@ -67,7 +67,6 @@ void main() {
       getIt.registerStrataState(platformService: mockService);
 
       expect(getIt.isRegistered<PlatformServiceInterface>(), isTrue);
-      expect(getIt.isRegistered<PlatformCubit>(), isTrue);
       expect(getIt.get<PlatformServiceInterface>(), equals(mockService));
     });
 
@@ -87,16 +86,6 @@ void main() {
       expect(getIt.get<NetworkStatusInterface>(), equals(mockNetwork));
     });
 
-    test(
-        'registerPlatformDependencies registers PlatformServiceInterface and PlatformCubit',
-        () {
-      final getIt = GetIt.asNewInstance();
 
-      getIt.registerPlatformDependencies();
-
-      expect(getIt.isRegistered<PlatformServiceInterface>(), isTrue);
-      expect(getIt.isRegistered<PlatformCubit>(), isTrue);
-      expect(getIt.get<PlatformServiceInterface>(), isA<PlatformServiceImpl>());
-    });
   });
 }

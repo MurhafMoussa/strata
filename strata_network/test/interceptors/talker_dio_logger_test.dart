@@ -1,6 +1,6 @@
 import 'package:strata_core/strata_core.dart';
-import 'package:strata_network/strata_network.dart';
 import 'package:talker/talker.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/test_helpers.dart';

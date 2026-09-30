@@ -17,7 +17,7 @@ The current `coore` Flutter foundation (v1.0.8) suffers from three core architec
 
 ## Proposed Outcome
 
-Rebrand and refactor `coore` into **`strata`**, an enterprise Melos monorepo comprising 7 focused sub-packages (`strata_core`, `strata_network`, `strata_storage`, `strata_state`, `strata_navigation`, `strata_ui`, and meta-package `strata`). Remove monolithic database wrappers, establish a unified class and interface naming convention (`Interface` suffix, technology-prefixed implementation names), fix all networking and state lifecycle bugs, decouple UI widgets from state management/routing, and enforce strict Red-Green-Refactor TDD for all package implementations.
+Rebrand and refactor `coore` into **`strata`**, an enterprise Melos monorepo comprising 6 focused sub-packages (`strata_core`, `strata_network`, `strata_storage`, `strata_state`, `strata_ui`, and meta-package `strata`). Remove monolithic database wrappers, establish a unified class and interface naming convention (`Interface` suffix, technology-prefixed implementation names), fix all networking and state lifecycle bugs, decouple UI widgets from state management/routing, and enforce strict Red-Green-Refactor TDD for all package implementations.
 
 ## User Stories
 
@@ -31,12 +31,11 @@ Rebrand and refactor `coore` into **`strata`**, an enterprise Melos monorepo com
 ## Requirements
 
 ### Package Decomposition & Dependencies
-1. The framework MUST be structured as a Melos monorepo containing 7 sub-packages:
+1. The framework MUST be structured as a Melos monorepo containing 6 sub-packages:
    - `strata_core`: Pure Dart domain entities, failures (including `StorageFailure`), `ResultFuture<T>` typedefs, logger interfaces, `ApiState<T>`, and `SensitiveStorageInterface`. Has ZERO dependencies on Flutter, Dio, or Hive. [L1, L3, L4, L8]
    - `strata_network`: Dio HTTP client wrapper, `ApiHandlerInterface`, `TokenRefreshInterceptorInterface`, `CancelRequestManagerInterface`, `DefaultCancelRequestManager`, `TokenManagerInterface`, and `DefaultTokenManager`. Depends on `strata_core` and `dio`. [L3, L5, L6]
    - `strata_storage`: Infrastructure adapters including `FlutterSecureSensitiveStorage` and database setup/key-rotation helpers. Depends on `strata_core` and `flutter_secure_storage`. [L1, L2, L4]
    - `strata_state`: BLoC state utilities including `ApiStateHostMixin`, `DisposableApiStateHandlerInterface`, `ApiStateHandler`, and `ApiStateBuilder`. Depends on `strata_core` and `flutter_bloc`. [L8, L11]
-   - `strata_navigation`: GoRouter configuration wrappers, route guards, and `ScreenParams`. Depends on `strata_core` and `go_router`. [L9]
    - `strata_ui`: Reusable UI components (`StrataPaginationWidget`, custom form fields, `StrataImage`). Depends on `strata_core` and `flutter`. MUST NOT depend on `flutter_bloc` or `go_router`. [L9]
    - `strata`: Orchestrator meta-package exporting all sub-packages for single-line app initialization. [L7]
 

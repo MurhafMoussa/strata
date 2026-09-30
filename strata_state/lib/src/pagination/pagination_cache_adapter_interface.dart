@@ -7,7 +7,7 @@ import 'package:strata_core/strata_core.dart';
 ///
 /// `@example`
 /// ```dart
-/// class InMemoryCacheAdapter<T extends Identifiable, M extends MetaModel>
+/// class InMemoryCacheAdapter<T extends Identifiable<String>, M extends MetaModel>
 ///     extends PaginationCacheAdapterInterface<T, M> {
 ///   final Map<String, PaginationResponseModel<T, M>> _storage = {};
 ///
@@ -31,7 +31,7 @@ import 'package:strata_core/strata_core.dart';
 /// }
 /// ```
 abstract class PaginationCacheAdapterInterface<
-    T extends Identifiable, M extends MetaModel> {
+    T extends Identifiable<String>, M extends MetaModel> {
   /// Const constructor for [PaginationCacheAdapterInterface].
   const PaginationCacheAdapterInterface();
 

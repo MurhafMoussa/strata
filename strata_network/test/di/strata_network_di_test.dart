@@ -4,6 +4,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get_it/get_it.dart';
 import 'package:strata_core/strata_core.dart';
 import 'package:strata_network/strata_network.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:test/test.dart';
 
 import '../helpers/test_helpers.dart';
@@ -40,7 +41,7 @@ void main() {
         );
 
         expect(getIt.isRegistered<NetworkConfigEntity>(), isTrue);
-        expect(getIt.isRegistered<CancelRequestManagerInterface>(), isTrue);
+        expect(getIt.isRegistered<NetworkCancelRequestManagerInterface>(), isTrue);
         expect(getIt.isRegistered<NetworkStatusInterface>(), isTrue);
         expect(getIt.isRegistered<TokenManagerInterface>(), isTrue);
         expect(getIt.isRegistered<NetworkExceptionMapperInterface>(), isTrue);
@@ -49,7 +50,7 @@ void main() {
 
         expect(getIt<ApiHandlerInterface>(), isA<DioApiHandler>());
         expect(
-          getIt<CancelRequestManagerInterface>(),
+          getIt<NetworkCancelRequestManagerInterface>(),
           isA<DefaultCancelRequestManager>(),
         );
         expect(
