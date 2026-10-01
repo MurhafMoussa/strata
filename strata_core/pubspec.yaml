@@ -1,6 +1,6 @@
 name: strata_core
 description: Core domain entities, failures, logger contracts, and storage interfaces for Strata framework.
-version: 2.0.1
+version: 2.0.2
 publish_to: none
 resolution: workspace
 

@@ -1,6 +1,6 @@
 name: strata_workspace
 description: "Strata framework monorepo workspace."
-version: 2.0.1
+version: 2.0.2
 publish_to: none
 
 environment:

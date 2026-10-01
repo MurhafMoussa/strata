@@ -76,6 +76,7 @@ import 'package:strata/strata.dart';
 import '../entities/product_entity.dart';
 import '../repositories/product_repository_interface.dart';
 
+// For custom parameter models, extend Equatable:
 class GetProductParams extends Equatable {
   const GetProductParams({required this.id});
   final String id;
@@ -83,6 +84,9 @@ class GetProductParams extends Equatable {
   @override
   List<Object?> get props => [id];
 }
+
+// Note: For simple single ID operations or parameterless use cases,
+// you can directly use `IdParam` or `NoParams` from `package:strata_core/strata_core.dart`.
 
 class GetProductUseCase extends ResultFutureUseCase<ProductEntity, GetProductParams> {
   const GetProductUseCase(this._repository);

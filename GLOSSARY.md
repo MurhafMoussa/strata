@@ -104,9 +104,21 @@ _Avoid_: CoreBlocObserver, BlocLogger
 The abstract interface in `strata_core` for entities with a unique identifier, used by the pagination system for type-safe item deduplication.
 _Avoid_: Identifiable (non-generic), Entity, HasId
 
+**NoParams**:
+The empty parameter value object in `strata_core` for use cases and requests requiring no arguments, supporting JSON serialization.
+_Avoid_: EmptyParams, VoidParams
+
+**IdParam**:
+The simple parameter value object in `strata_core` encapsulating a single unique entity ID string with configurable JSON key serialization (`toJson({String? idKey})`).
+_Avoid_: SingleIdParam, IdParameters
+
 **PaginationParamsInterface**:
 The abstract interface in `strata_core` for pagination parameters with a `requestId` property, constraining the pagination bloc's generic parameter.
-_Avoid_: PaginationParams, PageParams
+_Avoid_: PageParams, RequestIdParams
+
+**PaginationParams**:
+The unified sealed parameter hierarchy in `strata_core` (`PagePaginationParams`, `SkipPaginationParams`, `CursorPaginationParams`) implementing `PaginationParamsInterface`, providing JSON serialization (`toJson`, `fromJson`), query parameter flattening (`toQueryParameters`), optional filter extras (`extra`), and automatic `requestId` generation.
+_Avoid_: NetworkPaginationParams, ApiPaginationParams
 
 **Strata Skills**:
 The curated suite of developer AI agent skills provided by the Strata framework, structured as a top-level router (`strata`) and modular workflow skills (`strata-bootstrap`, `strata-feature`, `strata-pagination`, `strata-auth`).
@@ -115,3 +127,17 @@ _Avoid_: Coore Prompts, Strata Rules, Copilot Recipes
 **Strata Skills Installer**:
 The CLI utility executable in the `strata` package (`dart run strata:install_skills`) responsible for provisioning and updating the Strata agent skill suite in consumer applications.
 _Avoid_: SkillSetupScript, StrataCli, SkillCopier
+
+## Example Application Domain
+
+**TodoEntity**:
+The domain entity representing an individual task, implementing `Identifiable<String>` for $O(N)$ pagination deduplication, holding `title`, `description`, `isCompleted`, `priority` (`TodoPriority`), `createdAt`, and `Option<DateTime>` `dueDate`.
+_Avoid_: Todo, TaskEntity, TaskItem
+
+**TodoPriority**:
+The domain enumeration representing task urgency (`low`, `medium`, `high`, `urgent`), used for UI chips, sorting, and priority-based filtering.
+_Avoid_: Priority, TaskPriority
+
+**TodoRepositoryInterface**:
+The domain repository interface defining operations for fetching paginated todos across all three pagination schemes (`PagePaginationParams`, `SkipPaginationParams`, `CursorPaginationParams`), fetching single todo details, and executing mutations.
+_Avoid_: TodoRepositoryContract, ITodoRepository, TodoRepo

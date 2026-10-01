@@ -1,6 +1,6 @@
 name: strata_network
 description: Dio HTTP client wrapper, token lifecycle management, and cancellation tracking for Strata framework.
-version: 2.0.1
+version: 2.0.2
 publish_to: none
 resolution: workspace
 

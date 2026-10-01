@@ -25,6 +25,7 @@ Determine the pagination mechanic used by the target API endpoint:
 - **Page Scheme** (`page`, `limit`, `totalCount`): Use `PagePaginationStrategy` and `PagePaginationParams`.
 - **Skip/Offset Scheme** (`skip`, `limit`, `totalCount`): Use `SkipPaginationStrategy` and `SkipPaginationParams`.
 - **Cursor Scheme** (`cursor`, `limit`): Use `CursorPaginationStrategy` and `CursorPaginationParams`.
+*(All pagination parameters inherit from the unified `PaginationParams` in `strata_core`, implement `PaginationParamsInterface`, and support optional `extra` query filters and `.toQueryParameters()`)*
 
 *Tip*: If unsure, inspect a sample backend response JSON:
 ```json
