@@ -1,10 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:strata_core/strata_core.dart' as core;
-import 'params/params.dart';
+import 'package:strata_core/strata_core.dart';
 
 /// Abstract contract for managing request cancellation tokens.
 abstract class NetworkCancelRequestManagerInterface
-    extends core.CancelRequestManagerInterface {
+    extends CancelRequestManagerInterface {
   /// Registers a new request under [requestId], returning a distinct [CancelToken].
   CancelToken registerRequest(String requestId);
 

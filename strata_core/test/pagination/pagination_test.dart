@@ -116,19 +116,80 @@ void main() {
     test('PagePaginationParams implements interface and exposes requestId', () {
       const params = PagePaginationParams(page: 1, limit: 20);
       expect(params, isA<PaginationParamsInterface>());
+      expect(params, isA<PaginationParams>());
       expect(params.requestId, equals('page_1_limit_20'));
+      expect(params.page, equals(1));
+      expect(params.limit, equals(20));
+    });
+
+    test('PagePaginationParams serialization, defaults, and aliases', () {
+      const pagination1 = PagePaginationParams(page: 2, limit: 20);
+      final pagination2 = PagePaginationParams.fromJson({'page': 2, 'limit': 20});
+      final pagination3 = PagePaginationParams.fromJson({'batch': 2, 'limit': 20});
+
+      expect(pagination1, equals(pagination2));
+      expect(pagination1, equals(pagination3));
+      expect(pagination1.page, equals(2));
+      expect(pagination1.requestId, equals('page_2_limit_20'));
+      expect(pagination1.toJson(), equals({'page': 2, 'limit': 20}));
+      expect(pagination1.props, equals([2, 20, null]));
+
+      final defaultPagination = PagePaginationParams.fromJson({});
+      expect(defaultPagination.page, equals(1));
+      expect(defaultPagination.limit, equals(10));
+      expect(defaultPagination.requestId, equals('page_1_limit_10'));
+
+      const aliasParam = PagePaginationParams(page: 3, limit: 15);
+      expect(aliasParam, isA<PagePaginationParams>());
+      expect(aliasParam.page, equals(3));
     });
 
     test('SkipPaginationParams implements interface and exposes requestId', () {
       const params = SkipPaginationParams(skip: 10, limit: 15);
       expect(params, isA<PaginationParamsInterface>());
+      expect(params, isA<PaginationParams>());
       expect(params.requestId, equals('skip_10_limit_15'));
+      expect(params.skip, equals(10));
+      expect(params.limit, equals(15));
+    });
+
+    test('SkipPaginationParams serialization, defaults, and value equality', () {
+      const pagination1 = SkipPaginationParams(skip: 20, limit: 10);
+      final pagination2 = SkipPaginationParams.fromJson({'skip': 20, 'limit': 10});
+
+      expect(pagination1, equals(pagination2));
+      expect(pagination1.skip, equals(20));
+      expect(pagination1.requestId, equals('skip_20_limit_10'));
+      expect(pagination1.toJson(), equals({'skip': 20, 'limit': 10}));
+      expect(pagination1.props, equals([20, 10, null]));
+
+      final defaultPagination = SkipPaginationParams.fromJson({});
+      expect(defaultPagination.skip, equals(0));
+      expect(defaultPagination.limit, equals(10));
+      expect(defaultPagination.requestId, equals('skip_0_limit_10'));
     });
 
     test('CursorPaginationParams implements interface and exposes requestId', () {
       const params = CursorPaginationParams(cursor: 'token_1', limit: 25);
       expect(params, isA<PaginationParamsInterface>());
+      expect(params, isA<PaginationParams>());
       expect(params.requestId, equals('cursor_token_1_limit_25'));
+    });
+
+    test('CursorPaginationParams serialization, requestId, and value equality', () {
+      const pagination1 = CursorPaginationParams(cursor: 'token_123', limit: 20);
+      final pagination2 = CursorPaginationParams.fromJson({'cursor': 'token_123', 'limit': 20});
+
+      expect(pagination1, equals(pagination2));
+      expect(pagination1.cursor, equals('token_123'));
+      expect(pagination1.requestId, equals('cursor_token_123_limit_20'));
+      expect(pagination1.toJson(), equals({'cursor': 'token_123', 'limit': 20}));
+      expect(pagination1.props, equals(['token_123', 20, null]));
+
+      const nullCursorPagination = CursorPaginationParams(limit: 15);
+      expect(nullCursorPagination.cursor, isNull);
+      expect(nullCursorPagination.requestId, equals('cursor_null_limit_15'));
+      expect(nullCursorPagination.toJson(), equals({'limit': 15}));
     });
 
     test('CursorPaginationParams requestId handles null cursor', () {
@@ -140,6 +201,51 @@ void main() {
       const page1 = PagePaginationParams(page: 1, limit: 20);
       const page2 = PagePaginationParams(page: 2, limit: 20);
       expect(page1.requestId, isNot(equals(page2.requestId)));
+    });
+
+    test('PaginationParams polymorphic deserialization via fromJson factory', () {
+      final defaultParams = PaginationParams.fromJson({'page': 1, 'limit': 10});
+      expect(defaultParams, isA<PagePaginationParams>());
+
+      final skipParams = PaginationParams.fromJson({'skip': 10, 'limit': 10});
+      expect(skipParams, isA<SkipPaginationParams>());
+
+      final cursorParams = PaginationParams.fromJson({'cursor': 'abc', 'limit': 10});
+      expect(cursorParams, isA<CursorPaginationParams>());
+    });
+
+    test('PaginationParams supports extra parameters and flattens toQueryParameters()', () {
+      const extra = {'filter': 'active', 'order': 'desc'};
+      const params = PagePaginationParams(
+        page: 2,
+        limit: 15,
+        extra: extra,
+      );
+
+      expect(params.extra, equals(extra));
+      expect(
+        params.toJson(),
+        equals({'page': 2, 'limit': 15, 'extra': extra}),
+      );
+      expect(
+        params.toQueryParameters(),
+        equals({'page': 2, 'limit': 15, 'filter': 'active', 'order': 'desc'}),
+      );
+
+      final deserialized = PagePaginationParams.fromJson(params.toJson());
+      expect(deserialized.extra, equals(extra));
+
+      const skipParams = SkipPaginationParams(skip: 20, limit: 10, extra: extra);
+      expect(
+        skipParams.toQueryParameters(),
+        equals({'skip': 20, 'limit': 10, 'filter': 'active', 'order': 'desc'}),
+      );
+
+      const cursorParams = CursorPaginationParams(cursor: 'token_1', limit: 10, extra: extra);
+      expect(
+        cursorParams.toQueryParameters(),
+        equals({'cursor': 'token_1', 'limit': 10, 'filter': 'active', 'order': 'desc'}),
+      );
     });
   });
 

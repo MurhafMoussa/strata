@@ -83,6 +83,11 @@ cancelManager.cancelRequest('fetch_feed', reason: 'Screen dismissed');
 
 // Cancel all active network requests app-wide (e.g. on logout)
 cancelManager.cancelAll(reason: 'User logged out');
+
+// Register and cancel paginated requests via PaginatedCancelRequestManagerX
+final pageParams = PagePaginationParams(page: 1, limit: 20);
+final pageToken = cancelManager.registerPaginationRequest(pageParams);
+cancelManager.cancelPaginationRequest(pageParams, reason: 'Page refreshed');
 ```
 
 ### 4. `TokenRefreshInterceptorInterface`

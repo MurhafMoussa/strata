@@ -3,7 +3,6 @@ export 'src/api_handler/cancel_request_manager_interface.dart';
 export 'src/api_handler/default_cancel_request_manager.dart';
 export 'src/api_handler/dio_api_handler.dart';
 export 'src/api_handler/models/models.dart';
-export 'src/api_handler/params/params.dart';
 export 'src/auth/default_token_manager.dart';
 export 'src/auth/token_manager_interface.dart';
 export 'src/config/network_config_entity.dart';

@@ -98,6 +98,44 @@ abstract interface class PlatformServiceInterface {
 }
 ```
 
+### 8. Use Case & Request Parameters (`NoParams`, `IdParam`)
+Standardized parameter value objects for use cases and requests:
+
+```dart
+import 'package:strata_core/strata_core.dart';
+
+// Parameterless use cases
+class GetCurrentUserUseCase extends ResultFutureUseCase<UserEntity, NoParams> {
+  @override
+  ResultFuture<UserEntity> call(NoParams params) => _repo.getCurrentUser();
+}
+
+// Single ID use cases
+class GetUserByIdUseCase extends ResultFutureUseCase<UserEntity, IdParam> {
+  @override
+  ResultFuture<UserEntity> call(IdParam params) => _repo.getUserById(params.id);
+}
+```
+
+### 9. Unified Pagination Parameters & Strategies
+Pure, state-free pagination strategies and sealed parameter hierarchy:
+
+```dart
+import 'package:strata_core/strata_core.dart';
+
+// Page-based (page, limit, extra, requestId)
+const pageParams = PagePaginationParams(page: 1, limit: 20);
+
+// Skip-based (skip, limit, extra, requestId)
+const skipParams = SkipPaginationParams(skip: 0, limit: 20);
+
+// Cursor-based (cursor, limit, extra, requestId)
+const cursorParams = CursorPaginationParams(cursor: 'token_123', limit: 20);
+
+// Flatten into query parameters including filters
+final query = pageParams.toQueryParameters(); // {'page': 1, 'limit': 20}
+```
+
 ## Running Tests & Audits
 
 Run unit tests and dependency boundary checks inside the `strata_core` directory:

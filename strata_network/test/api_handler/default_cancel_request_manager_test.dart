@@ -1,3 +1,4 @@
+import 'package:strata_core/strata_core.dart';
 import 'package:strata_network/strata_network.dart';
 import 'package:test/test.dart';
 
@@ -65,7 +66,7 @@ void main() {
     });
 
     test('PaginatedCancelRequestManagerX extension registers and cancels requests using PaginationParams', () {
-      const defaultParams = DefaultPaginationParams(page: 1, limit: 20);
+      const defaultParams = PagePaginationParams(page: 1, limit: 20);
       const skipParams = SkipPaginationParams(skip: 10, limit: 10);
       const cursorParams = CursorPaginationParams(cursor: 'tok_1', limit: 20);
 

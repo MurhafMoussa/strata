@@ -1,42 +1,24 @@
 import 'package:equatable/equatable.dart';
 
-/// Empty parameter class for requests requiring no arguments.
-class const NoParams() extends Equatable {
-  factory NoParams.fromJson(Map<String, dynamic> json) => const NoParams();
-
-  Map<String, dynamic> toJson() => {};
-
-  @override
-  List<Object?> get props => [];
-}
-
-/// Simple parameter class holding a single string ID.
-class const IdParam({required final String id}) extends Equatable {
-  factory IdParam.fromJson(Map<String, dynamic> json) =>
-      IdParam(id: json['id'] as String? ?? '');
-
-  Map<String, dynamic> toJson({String? idKey}) => {idKey ?? 'id': id};
-
-  @override
-  List<Object?> get props => [id];
-}
+import 'pagination_params_interface.dart';
 
 /// Abstract contract and sealed hierarchy for pagination request parameters.
 ///
-/// Supports [DefaultPaginationParams] (page/batch based), [SkipPaginationParams]
+/// Supports [PagePaginationParams] (page/batch based), [SkipPaginationParams]
 /// (offset/skip based), and [CursorPaginationParams] (opaque token based).
 ///
-/// Each variant generates an automatic [requestId] used for request keying
-/// and cancellation tracking via `CancelRequestManagerInterface`.
+/// Each variant implements [PaginationParamsInterface] and generates an automatic
+/// [requestId] used for request keying and cancellation tracking via
+/// `CancelRequestManagerInterface`.
 ///
 /// `@example`
 /// ```dart
-/// const pageParams = DefaultPaginationParams(
+/// const pageParams = PagePaginationParams(
 ///   page: 1,
 ///   limit: 20,
 ///   extra: {'search': 'flutter', 'status': 'active'},
 /// );
-/// print(pageParams.requestId); // 'default_page_1_limit_20'
+/// print(pageParams.requestId); // 'page_1_limit_20'
 /// print(pageParams.extra); // {'search': 'flutter', 'status': 'active'}
 ///
 /// const skipParams = SkipPaginationParams(skip: 10, limit: 10);
@@ -45,7 +27,8 @@ class const IdParam({required final String id}) extends Equatable {
 /// const cursorParams = CursorPaginationParams(cursor: 'abc123', limit: 20);
 /// print(cursorParams.requestId); // 'cursor_abc123_limit_20'
 /// ```
-sealed class PaginationParams extends Equatable {
+sealed class PaginationParams extends Equatable
+    implements PaginationParamsInterface {
   /// Const constructor for sealed [PaginationParams] hierarchy.
   const PaginationParams();
 
@@ -53,6 +36,7 @@ sealed class PaginationParams extends Equatable {
   int get limit;
 
   /// Unique request identifier string generated automatically for cancellation tracking.
+  @override
   String get requestId;
 
   /// Optional dynamic filter or query parameter map.
@@ -77,7 +61,7 @@ sealed class PaginationParams extends Equatable {
     } else if (json.containsKey('skip')) {
       return SkipPaginationParams.fromJson(json);
     } else {
-      return DefaultPaginationParams.fromJson(json);
+      return PagePaginationParams.fromJson(json);
     }
   }
 }
@@ -86,34 +70,29 @@ sealed class PaginationParams extends Equatable {
 ///
 /// `@example`
 /// ```dart
-/// const params = DefaultPaginationParams(
+/// const params = PagePaginationParams(
 ///   page: 1,
 ///   limit: 20,
 ///   extra: {'search': 'dart', 'sort': 'asc'},
 /// );
-/// print(params.requestId); // 'default_page_1_limit_20'
+/// print(params.requestId); // 'page_1_limit_20'
 /// print(params.toJson());
 /// // {'page': 1, 'limit': 20, 'extra': {'search': 'dart', 'sort': 'asc'}}
 /// ```
-class DefaultPaginationParams extends PaginationParams {
-  /// Creates a [DefaultPaginationParams] instance.
+class PagePaginationParams extends PaginationParams {
+  /// Creates a [PagePaginationParams] instance.
   ///
   /// Supports [page] (1-based index) and [limit]. Accepts optional [batch]
   /// for backward compatibility.
-  const DefaultPaginationParams({
-    int page = 1,
-    this.limit = 10,
-    int? batch,
-    this.extra,
-  }) : page = batch ?? page;
+  const PagePaginationParams({this.page = 1, this.limit = 10, this.extra});
 
-  /// Factory constructor to deserialize [DefaultPaginationParams] from JSON.
-  factory DefaultPaginationParams.fromJson(Map<String, dynamic> json) {
+  /// Factory constructor to deserialize [PagePaginationParams] from JSON.
+  factory PagePaginationParams.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic>? extraMap;
     if (json.containsKey('extra') && json['extra'] is Map<String, dynamic>) {
       extraMap = Map<String, dynamic>.from(json['extra'] as Map);
     }
-    return DefaultPaginationParams(
+    return PagePaginationParams(
       page: json['page'] as int? ?? json['batch'] as int? ?? 1,
       limit: json['limit'] as int? ?? 10,
       extra: extraMap,
@@ -123,9 +102,6 @@ class DefaultPaginationParams extends PaginationParams {
   /// 1-based page number index.
   final int page;
 
-  /// Backward-compatible getter for batch index (aliases [page]).
-  int get batch => page;
-
   @override
   final int limit;
 
@@ -133,15 +109,11 @@ class DefaultPaginationParams extends PaginationParams {
   final Map<String, dynamic>? extra;
 
   @override
-  String get requestId => 'default_page_${page}_limit_$limit';
+  String get requestId => 'page_${page}_limit_$limit';
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'page': page,
-      'limit': limit,
-      if (extra != null) 'extra': extra,
-    };
+    return {'page': page, 'limit': limit, if (extra != null) 'extra': extra};
   }
 
   @override
@@ -158,11 +130,7 @@ class DefaultPaginationParams extends PaginationParams {
 /// ```
 class SkipPaginationParams extends PaginationParams {
   /// Creates a [SkipPaginationParams] instance.
-  const SkipPaginationParams({
-    this.skip = 0,
-    this.limit = 10,
-    this.extra,
-  });
+  const SkipPaginationParams({this.skip = 0, this.limit = 10, this.extra});
 
   /// Factory constructor to deserialize [SkipPaginationParams] from JSON.
   factory SkipPaginationParams.fromJson(Map<String, dynamic> json) {
@@ -191,11 +159,7 @@ class SkipPaginationParams extends PaginationParams {
 
   @override
   Map<String, dynamic> toJson() {
-    return {
-      'skip': skip,
-      'limit': limit,
-      if (extra != null) 'extra': extra,
-    };
+    return {'skip': skip, 'limit': limit, if (extra != null) 'extra': extra};
   }
 
   @override
@@ -212,11 +176,7 @@ class SkipPaginationParams extends PaginationParams {
 /// ```
 class CursorPaginationParams extends PaginationParams {
   /// Creates a [CursorPaginationParams] instance.
-  const CursorPaginationParams({
-    this.cursor,
-    this.limit = 10,
-    this.extra,
-  });
+  const CursorPaginationParams({this.cursor, this.limit = 10, this.extra});
 
   /// Factory constructor to deserialize [CursorPaginationParams] from JSON.
   factory CursorPaginationParams.fromJson(Map<String, dynamic> json) {
